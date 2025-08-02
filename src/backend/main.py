@@ -28,7 +28,7 @@ def index():
 @app.post('/music/')
 def create(track: Soundtrack):
     data[max(data.keys()) + 1] = track
-    return track
+    return 200
 
 
 @app.get('/music')
@@ -39,3 +39,9 @@ def read():
 @app.get('/music/{track_id}')
 def read_all(track_id: int):
     return data[track_id]
+
+
+@app.put('/music/{track_id}')
+def update(track_id: int, track: Soundtrack):
+    data[track_id] = track
+    return 200
