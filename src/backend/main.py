@@ -13,16 +13,22 @@ class Soundtrack(BaseModel):
     album: str | None = None
 
 
-data = [
-    Soundtrack(name='Aria 5', author='Joe Fofo', track_length=121, listens=40175, genres=['rock']),
-    Soundtrack(name='Cake Song', author='Untalanted baker', track_length=307,
-               listens=23, genres=['pop', 'rap'], album='Void'),
-]
+data = {
+    0: Soundtrack(name='Aria 5', author='Joe Fofo', track_length=121, listens=40175, genres=['rock']),
+    1: Soundtrack(name='Cake Song', author='Untalanted baker', track_length=307,
+                  listens=23, genres=['pop', 'rap'], album='Void'),
+}
 
 
 @app.get('/')
 def index():
     return {'test': 'Hello World!'}
+
+
+@app.post('/music/new/')
+def create(track: Soundtrack):
+    data[max(data.keys()) + 1] = track
+    return track
 
 
 @app.get('/music/get')
