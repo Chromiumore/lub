@@ -25,17 +25,17 @@ def index():
     return {'test': 'Hello World!'}
 
 
-@app.post('/music/new/')
+@app.post('/music/')
 def create(track: Soundtrack):
     data[max(data.keys()) + 1] = track
     return track
 
 
-@app.get('/music/get')
+@app.get('/music')
 def read():
     return data
 
 
-@app.get('/music/get/{track_id}')
+@app.get('/music/{track_id}')
 def read_all(track_id: int):
     return data[track_id]
