@@ -1,21 +1,23 @@
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
 
 
-class Soundtrack:
-    def __init__(self, name: str, author: str, track_length: int,
-                 listens: int, genres: list | tuple, album: str | None = None):
-        self.name = name
-        self.author = author
-        self.track_length = track_length
-        self.listens = listens
-        self.genres = genres
-        self.album = album
+class Soundtrack(BaseModel):
+    name: str
+    author: str
+    track_length: int
+    listens: int
+    genres: list | tuple
+    album: str | None = None
 
 
-data = [Soundtrack('Aria 5', 'Joe Fofo', 121, 40175, ['rock']),
-        Soundtrack('Cake Song', 'Untalanted baker', 307, 23, ['pop', 'rap'], 'Void'), ]
+data = [
+    Soundtrack(name='Aria 5', author='Joe Fofo', track_length=121, listens=40175, genres=['rock']),
+    Soundtrack(name='Cake Song', author='Untalanted baker', track_length=307,
+               listens=23, genres=['pop', 'rap'], album='Void'),
+]
 
 
 @app.get('/')
