@@ -24,10 +24,10 @@ def index():
 
 
 @app.get('/music/get')
-def get():
+def read():
     return data
 
 
 @app.get('/music/get/{track_id}')
-def get_all(track_id: int):
+def read_all(track_id: int):
     return data[track_id]
