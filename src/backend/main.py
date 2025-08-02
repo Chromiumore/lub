@@ -45,3 +45,9 @@ def read_all(track_id: int):
 def update(track_id: int, track: Soundtrack):
     data[track_id] = track
     return 200
+
+
+@app.delete('/music/{track_id}')
+def delete(track_id: int):
+    data.pop(track_id)
+    return 200
