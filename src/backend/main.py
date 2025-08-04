@@ -32,12 +32,12 @@ def create(track: Soundtrack):
 
 
 @app.get('/music')
-def read():
+def get():
     return data
 
 
 @app.get('/music/{track_id}')
-def read_all(track_id: int):
+def get_all(track_id: int):
     return data[track_id]
 
 
