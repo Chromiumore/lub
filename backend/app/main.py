@@ -1,3 +1,6 @@
+from http.client import HTTPException
+
+import fastapi
 from fastapi import FastAPI
 from .database import db_helper
 from .schemas import SoundtrackDTO
@@ -11,7 +14,7 @@ def index():
     return {'test': 'Hello World!'}
 
 
-@app.post('/music/')
+@app.post('/music/', status_code=201)
 def create(track: SoundtrackDTO):
     with db_helper.session_maker() as session:
         session.add(
@@ -25,21 +28,33 @@ def create(track: SoundtrackDTO):
         session.commit()
 
 
-@app.get('/music')
-def get():
-    return
-
-
 @app.get('/music/{track_id}')
-def get_all(track_id: int):
-    return
+def get(track_id: int):
+    with db_helper.session_maker() as session:
+        track = session.query(Soundtrack).filter_by(id=track_id).first()
+        return {'track': track}
+
+
+@app.get('/music')
+def get_all():
+    with db_helper.session_maker() as session:
+        tracks = session.query(Soundtrack).all()
+        return {'tracks': tracks}
 
 
 @app.put('/music/{track_id}')
 def update(track_id: int, track: SoundtrackDTO):
-    return
+    with db_helper.session_maker() as session:
+        db_track = session.query(Soundtrack).filter_by(id=track_id).first()
+        for key, value in track.model_dump().items():
+            setattr(db_track, key, value)
+        session.commit()
+        session.refresh(db_track)
+        return {'track': db_track}
 
 
-@app.delete('/music/{track_id}')
+@app.delete('/music/{track_id}/')
 def delete(track_id: int):
-    return
+    with db_helper.session_maker() as session:
+        session.query(Soundtrack).filter_by(id=track_id).delete()
+        session.commit()
