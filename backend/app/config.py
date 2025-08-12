@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class ConfigBase(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file='backend/.env',
+        env_file='.env',
     )
 
 

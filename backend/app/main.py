@@ -1,24 +1,9 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from .database import db_engine
+from .database import db_helper
+from .schemas import SoundtrackDTO
+from .database.models import Soundtrack
 
 app = FastAPI()
-
-
-class Soundtrack(BaseModel):
-    name: str
-    author: str
-    track_length: int
-    listens: int
-    genres: list | tuple
-    album: str | None = None
-
-
-data = {
-    0: Soundtrack(name='Aria 5', author='Joe Fofo', track_length=121, listens=40175, genres=['rock']),
-    1: Soundtrack(name='Cake Song', author='Untalanted baker', track_length=307,
-                  listens=23, genres=['pop', 'rap'], album='Void'),
-}
 
 
 @app.get('/')
@@ -27,28 +12,34 @@ def index():
 
 
 @app.post('/music/')
-def create(track: Soundtrack):
-    data[max(data.keys()) + 1] = track
-    return 200
+def create(track: SoundtrackDTO):
+    with db_helper.session_maker() as session:
+        session.add(
+            Soundtrack(
+                name=track.name,
+                author_id=track.author_id,
+                track_length=track.track_length,
+                listens=track.listens,
+            )
+        )
+        session.commit()
 
 
 @app.get('/music')
 def get():
-    return data
+    return
 
 
 @app.get('/music/{track_id}')
 def get_all(track_id: int):
-    return data[track_id]
+    return
 
 
 @app.put('/music/{track_id}')
-def update(track_id: int, track: Soundtrack):
-    data[track_id] = track
-    return 200
+def update(track_id: int, track: SoundtrackDTO):
+    return
 
 
 @app.delete('/music/{track_id}')
 def delete(track_id: int):
-    data.pop(track_id)
-    return 200
+    return
