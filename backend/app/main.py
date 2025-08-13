@@ -1,6 +1,3 @@
-from http.client import HTTPException
-
-import fastapi
 from fastapi import FastAPI
 from .database import db_helper
 from .schemas import SoundtrackDTO

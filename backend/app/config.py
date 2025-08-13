@@ -17,6 +17,10 @@ class DatabaseConfig(ConfigBase):
     user: str
     password: SecretStr
 
+    def get_db_url(self):
+        return (f'postgresql+psycopg2://'
+                f'{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}')
+
 
 class Config(BaseSettings):
     db: DatabaseConfig = Field(default_factory=DatabaseConfig)
