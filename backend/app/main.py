@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from .database import db_helper
 from .schemas import SoundtrackDTO
-from .database.models import Soundtrack
+from .models import Soundtrack
 
 app = FastAPI()
 
