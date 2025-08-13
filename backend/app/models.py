@@ -1,6 +1,5 @@
-from sqlalchemy import Integer, String
-from sqlalchemy.orm import DeclarativeBase, Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy import Integer, String, Text, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -9,9 +8,17 @@ class Base(DeclarativeBase):
 
 
 class Soundtrack(Base):
-    __tablename__ = 'soundtrack'
+    __tablename__ = 'soundtracks'
 
     name: Mapped[str] = mapped_column(String)
-    author_id: Mapped[int] = mapped_column(Integer)
+    author_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     track_length: Mapped[int] = mapped_column(Integer)
     listens: Mapped[int] = mapped_column(Integer)
+
+
+class User(Base):
+    __tablename__ = 'users'
+
+    login: Mapped[str] = mapped_column(String, unique=True)
+    password_hash: Mapped[str] = mapped_column(String(256))
+    email: Mapped[str] = mapped_column(String, unique=True)
