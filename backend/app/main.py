@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile
 from .database import db_helper
 from .schemas import SoundtrackDTO
 from .models import Soundtrack
+from .config import Config
 
 app = FastAPI()
 
@@ -55,3 +56,10 @@ def delete(track_id: int):
     with db_helper.session_maker() as session:
         session.query(Soundtrack).filter_by(id=track_id).delete()
         session.commit()
+
+
+@app.post('/upload/')
+async def upload_file(file: UploadFile):
+    with open(f'{Config.load().files.path}/{file.filename}', 'wb') as out_file:
+        content = await file.read()
+        out_file.write(content)
