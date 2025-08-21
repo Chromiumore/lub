@@ -1,4 +1,5 @@
 from fastapi import UploadFile, APIRouter
+from fastapi.responses import FileResponse
 from .database import db_helper
 from .schemas import SoundtrackDTO
 from .models import Soundtrack
@@ -63,3 +64,8 @@ async def upload_file(file: UploadFile):
     with open(f'{Config.load().files.path}/{file.filename}', 'wb') as out_file:
         content = await file.read()
         out_file.write(content)
+
+
+@router.get('/download/{filename}')
+def download_file(filename: str):
+    return FileResponse(f'{Config.load().files.path}/{filename}')
