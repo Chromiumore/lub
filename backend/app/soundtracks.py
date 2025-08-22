@@ -1,7 +1,7 @@
 from fastapi import UploadFile, APIRouter
 from fastapi.responses import FileResponse
 from .database import db_helper
-from .schemas import SoundtrackDTO
+from .schemas import SoundtrackSchema
 from .models import Soundtrack
 from .config import Config
 
@@ -14,7 +14,7 @@ def index():
 
 
 @router.post('/music/', status_code=201)
-def create(track: SoundtrackDTO):
+def create(track: SoundtrackSchema):
     with db_helper.session_maker() as session:
         session.add(
             Soundtrack(
@@ -42,7 +42,7 @@ def get_all():
 
 
 @router.put('/music/{track_id}')
-def update(track_id: int, track: SoundtrackDTO):
+def update(track_id: int, track: SoundtrackSchema):
     with db_helper.session_maker() as session:
         db_track = session.query(Soundtrack).filter_by(id=track_id).first()
         for key, value in track.model_dump().items():

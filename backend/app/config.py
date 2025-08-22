@@ -29,9 +29,16 @@ class FileStorageConfig(ConfigBase):
     path: str
 
 
+class AuthConfig(ConfigBase):
+    model_config = SettingsConfigDict(env_prefix='auth_', case_sensitive=False)
+
+    secret_key: SecretStr
+
+
 class Config(BaseSettings):
     db: DatabaseConfig = Field(default_factory=DatabaseConfig)
     files: FileStorageConfig = Field(default_factory=FileStorageConfig)
+    auth: AuthConfig = Field(default_factory=AuthConfig)
 
     @classmethod
     def load(cls) -> "Config":

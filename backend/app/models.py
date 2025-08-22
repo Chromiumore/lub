@@ -22,7 +22,7 @@ class Soundtrack(Base):
 class User(Base):
     __tablename__ = 'users'
 
-    login: Mapped[str] = mapped_column(String, unique=True)
+    username: Mapped[str] = mapped_column(String, unique=True)
     password_hash: Mapped[str] = mapped_column(String(256))
     email: Mapped[str] = mapped_column(String, unique=True)
 
