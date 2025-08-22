@@ -5,6 +5,8 @@ from sqlalchemy import pool
 
 from alembic import context
 
+import alembic_postgresql_enum
+
 from app.config import Config as AppConfig
 from app.models import Base
 

@@ -1,5 +1,8 @@
+from enum import Enum
 from sqlalchemy import Integer, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import ENUM as pgEnum
+import sqlalchemy
 
 
 class Base(DeclarativeBase):
@@ -22,3 +25,16 @@ class User(Base):
     login: Mapped[str] = mapped_column(String, unique=True)
     password_hash: Mapped[str] = mapped_column(String(256))
     email: Mapped[str] = mapped_column(String, unique=True)
+
+
+class FileType(Enum):
+    sound = 'sound'
+    image = 'image'
+
+
+class File(Base):
+    __tablename__ = 'files'
+
+    filename: Mapped[str] = mapped_column(String)
+    soundtrack_id: Mapped[int] = mapped_column(ForeignKey('soundtracks.id'))
+    file_type: Mapped[str] = mapped_column(pgEnum(FileType))
