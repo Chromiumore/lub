@@ -2,7 +2,7 @@ from hashlib import sha256
 from authx import AuthX, AuthXConfig, RequestToken
 from fastapi import APIRouter, HTTPException, Depends
 from .config import Config
-from .schemas import LoginSchema
+from .schemas import LoginSchema, RegisterSchema
 from .database import db_helper
 from .models import User
 
@@ -15,6 +15,23 @@ auth = AuthX(config=config)
 
 
 router = APIRouter()
+
+
+@router.post('/register', status_code=201)
+def register(creds: RegisterSchema):
+    email = creds.email
+    username = creds.username
+    password = creds.password.get_secret_value()
+    with db_helper.session_maker() as session:
+        session.add(
+            User(
+                email=email,
+                username=username,
+                password_hash=sha256(password.encode('utf-8')).hexdigest(),
+            )
+        )
+        session.commit()
+
 
 @router.post('/login')
 def login(creds: LoginSchema):
