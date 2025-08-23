@@ -2,7 +2,7 @@ from hashlib import sha256
 from authx import AuthX, AuthXConfig, RequestToken
 from fastapi import APIRouter, HTTPException, Depends
 from .config import Config
-from .schemas import UserLoginSchema
+from .schemas import LoginSchema
 from .database import db_helper
 from .models import User
 
@@ -17,7 +17,7 @@ auth = AuthX(config=config)
 router = APIRouter()
 
 @router.post('/login')
-def login(creds: UserLoginSchema):
+def login(creds: LoginSchema):
     email = creds.email
     password = creds.password.get_secret_value()
     with db_helper.session_maker() as session:

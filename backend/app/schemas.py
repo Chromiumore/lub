@@ -8,7 +8,12 @@ class SoundtrackSchema(BaseModel):
     listens: int
 
 
-class UserLoginSchema(BaseModel):
+class RegisterSchema(BaseModel):
     username: str
     password: SecretStr
     email: EmailStr
+
+
+class LoginSchema(BaseModel):
+    email: EmailStr
+    password: SecretStr
