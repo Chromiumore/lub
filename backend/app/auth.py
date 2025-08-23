@@ -1,5 +1,5 @@
 from hashlib import sha256
-from authx import AuthX, AuthXConfig, RequestToken
+from authx import AuthX, AuthXConfig, RequestToken, TokenPayload
 from fastapi import APIRouter, HTTPException, Depends
 from .config import Config
 from .schemas import LoginSchema, RegisterSchema
@@ -49,6 +49,11 @@ def login(creds: LoginSchema):
 def protected(token: RequestToken = Depends()):
     try:
         auth.verify_token(token=token)
-        return {"message": "Hello world !"}
+
+        payload = TokenPayload.decode(token.token, Config.load().auth.secret_key.get_secret_value())
+        with db_helper.session_maker() as session:
+            db_user = session.query(User).filter_by(id=payload.sub).first()
+
+            return {"message": f'Hello {db_user.username}!'}
     except Exception as e:
         raise HTTPException(401, detail={"message": str(e)}) from e
