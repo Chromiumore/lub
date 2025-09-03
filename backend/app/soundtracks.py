@@ -1,8 +1,12 @@
-from fastapi import UploadFile, APIRouter
+import os
+from uuid import uuid4
+from typing import Annotated
+from fastapi import UploadFile, File, APIRouter, Depends
 from fastapi.responses import FileResponse
 from .database import db_helper
 from .schemas import SoundtrackSchema
-from .models import Soundtrack
+from .models import Soundtrack, FileType
+from .models import File as FileDB
 from .config import Config
 
 router = APIRouter()
@@ -14,17 +18,33 @@ def index():
 
 
 @router.post('/music/', status_code=201)
-def create(track: SoundtrackSchema):
+async def create(
+    file: UploadFile = File(...),
+    track: SoundtrackSchema = Depends(),
+):
     with db_helper.session_maker() as session:
-        session.add(
-            Soundtrack(
+        track = Soundtrack(
                 name=track.name,
                 author_id=track.author_id,
                 track_length=track.track_length,
                 listens=track.listens,
             )
+        session.add(track)
+        session.flush()
+
+        _, ext = os.path.splitext(file.filename)
+        db_file = FileDB(
+            storage_filename=f'{uuid4()}.{ext}',
+            original_filename=file.filename,
+            soundtrack_id=track.id,
+            file_type='sound',
         )
+        session.add(db_file)
         session.commit()
+
+        with open(f'{Config.load().files.path}/{db_file.storage_filename}', 'wb') as out_file:
+            content = await file.read()
+            out_file.write(content)
 
 
 @router.get('/music/{track_id}')
@@ -57,13 +77,6 @@ def delete(track_id: int):
     with db_helper.session_maker() as session:
         session.query(Soundtrack).filter_by(id=track_id).delete()
         session.commit()
-
-
-@router.post('/upload/')
-async def upload_file(file: UploadFile):
-    with open(f'{Config.load().files.path}/{file.filename}', 'wb') as out_file:
-        content = await file.read()
-        out_file.write(content)
 
 
 @router.get('/download/{filename}')
