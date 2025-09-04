@@ -72,6 +72,22 @@ def update(track_id: int, track: SoundtrackSchema):
         return {'track': db_track}
 
 
+@router.put('/music/{track_id}/file')
+async def update_file(track_id: int, file: UploadFile):
+    with db_helper.session_maker() as session:
+        db_file = session.query(FileDB).filter_by(soundtrack_id=track_id).first()
+
+        _, ext = os.path.splitext(file.filename)
+
+        db_file.original_filename=file.filename
+
+        session.commit()
+
+        with open(f'{Config.load().files.path}/{db_file.storage_filename}', 'wb') as out_file:
+            content = await file.read()
+            out_file.write(content)
+
+
 @router.delete('/music/{track_id}/')
 def delete(track_id: int):
     with db_helper.session_maker() as session:
