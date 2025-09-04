@@ -54,6 +54,15 @@ def get(track_id: int):
         return {'track': track}
 
 
+@router.get('/music/{track_id}/file')
+def download_file(track_id: int):
+    with db_helper.session_maker() as session:
+        db_file = session.query(FileDB).filter_by(soundtrack_id=track_id).first()
+        filename = db_file.storage_filename
+        
+        return FileResponse(f'{Config.load().files.path}/{filename}')
+
+
 @router.get('/music')
 def get_all():
     with db_helper.session_maker() as session:
@@ -98,8 +107,3 @@ def delete(track_id: int):
         session.commit()
     
         os.remove(f'{Config.load().files.path}/{filename}')
-
-
-@router.get('/download/{filename}')
-def download_file(filename: str):
-    return FileResponse(f'{Config.load().files.path}/{filename}')
