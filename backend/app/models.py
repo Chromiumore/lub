@@ -37,5 +37,5 @@ class File(Base):
 
     storage_filename: Mapped[str] = mapped_column(String, unique=True)
     original_filename: Mapped[str] = mapped_column(String)
-    soundtrack_id: Mapped[int] = mapped_column(ForeignKey('soundtracks.id'))
+    soundtrack_id: Mapped[int] = mapped_column(ForeignKey('soundtracks.id', ondelete='cascade'))
     file_type: Mapped[str] = mapped_column(pgEnum(FileType))

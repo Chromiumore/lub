@@ -91,8 +91,13 @@ async def update_file(track_id: int, file: UploadFile):
 @router.delete('/music/{track_id}/')
 def delete(track_id: int):
     with db_helper.session_maker() as session:
+        db_file = session.query(FileDB).filter_by(soundtrack_id=track_id).first()
+        filename = db_file.storage_filename
+
         session.query(Soundtrack).filter_by(id=track_id).delete()
         session.commit()
+    
+        os.remove(f'{Config.load().files.path}/{filename}')
 
 
 @router.get('/download/{filename}')
