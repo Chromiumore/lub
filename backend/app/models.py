@@ -35,7 +35,7 @@ class FileType(Enum):
 class File(Base):
     __tablename__ = 'files'
 
-    storage_filename: Mapped[str] = mapped_column(String)
+    storage_filename: Mapped[str] = mapped_column(String, unique=True)
     original_filename: Mapped[str] = mapped_column(String)
     soundtrack_id: Mapped[int] = mapped_column(ForeignKey('soundtracks.id'))
     file_type: Mapped[str] = mapped_column(pgEnum(FileType))
