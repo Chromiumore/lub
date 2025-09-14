@@ -1,7 +1,7 @@
 import os
 from uuid import uuid4
 from typing import Annotated
-from fastapi import UploadFile, File, APIRouter, Depends
+from fastapi import UploadFile, File, APIRouter, Body
 from fastapi.responses import FileResponse
 from .database import db_helper
 from .schemas import SoundtrackSchema
@@ -20,7 +20,7 @@ def index():
 @router.post('/music/', status_code=201)
 async def create(
     file: UploadFile = File(...),
-    track: SoundtrackSchema = Depends(),
+    track: SoundtrackSchema = Body(...),
 ):
     with db_helper.session_maker() as session:
         track = Soundtrack(
