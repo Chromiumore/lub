@@ -25,3 +25,22 @@ class RegisterSchema(BaseModel):
 class LoginSchema(BaseModel):
     email: EmailStr
     password: SecretStr
+
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+
+    class Config:
+        from_attributes = True
+
+
+class SoundtrackResponse(BaseModel):
+    id: int
+    name: str
+    author: UserResponse
+    track_length: int
+    listens: int
+
+    class Config:
+        from_attributes = True
