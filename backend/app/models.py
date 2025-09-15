@@ -1,8 +1,7 @@
 from enum import Enum
 from sqlalchemy import Integer, String, ForeignKey
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import ENUM as pgEnum
-import sqlalchemy
 
 
 class Base(DeclarativeBase):
@@ -15,6 +14,7 @@ class Soundtrack(Base):
 
     name: Mapped[str] = mapped_column(String)
     author_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    author: Mapped['User'] = relationship()
     track_length: Mapped[int] = mapped_column(Integer)
     listens: Mapped[int] = mapped_column(Integer)
 

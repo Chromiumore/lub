@@ -1,11 +1,11 @@
 import os
 from uuid import uuid4
-from typing import Annotated
-from fastapi import UploadFile, File, APIRouter, Depends
+from fastapi import UploadFile, File, APIRouter, Body
 from fastapi.responses import FileResponse
+from sqlalchemy.orm import selectinload
 from .database import db_helper
-from .schemas import SoundtrackSchema
-from .models import Soundtrack, FileType
+from .schemas import SoundtrackSchema, SoundtrackResponse
+from .models import Soundtrack
 from .models import File as FileDB
 from .config import Config
 
@@ -20,7 +20,7 @@ def index():
 @router.post('/music/', status_code=201)
 async def create(
     file: UploadFile = File(...),
-    track: SoundtrackSchema = Depends(),
+    track: SoundtrackSchema = Body(...),
 ):
     with db_helper.session_maker() as session:
         track = Soundtrack(
@@ -47,11 +47,11 @@ async def create(
             out_file.write(content)
 
 
-@router.get('/music/{track_id}')
+@router.get('/music/{track_id}', response_model=SoundtrackResponse)
 def get(track_id: int):
     with db_helper.session_maker() as session:
-        track = session.query(Soundtrack).filter_by(id=track_id).first()
-        return {'track': track}
+        track = session.query(Soundtrack).options(selectinload(Soundtrack.author)).filter_by(id=track_id).first()
+        return track
 
 
 @router.get('/music/{track_id}/file')
@@ -63,22 +63,22 @@ def download_file(track_id: int):
         return FileResponse(f'{Config.load().files.path}/{filename}')
 
 
-@router.get('/music')
+@router.get('/music', response_model=list[SoundtrackResponse])
 def get_all():
     with db_helper.session_maker() as session:
-        tracks = session.query(Soundtrack).all()
-        return {'tracks': tracks}
+        tracks = session.query(Soundtrack).options(selectinload(Soundtrack.author)).all()
+        return tracks
 
 
-@router.put('/music/{track_id}')
+@router.put('/music/{track_id}', response_model=SoundtrackResponse)
 def update(track_id: int, track: SoundtrackSchema):
     with db_helper.session_maker() as session:
-        db_track = session.query(Soundtrack).filter_by(id=track_id).first()
+        db_track = session.query(Soundtrack).options(selectinload(Soundtrack.author)).filter_by(id=track_id).first()
         for key, value in track.model_dump().items():
             setattr(db_track, key, value)
         session.commit()
         session.refresh(db_track)
-        return {'track': db_track}
+        return db_track
 
 
 @router.put('/music/{track_id}/file')
