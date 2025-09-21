@@ -60,23 +60,34 @@ class _HomePageState extends State<HomePage> {
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else if (snapshot.hasData) {
-                  return Column(
-                    children: [
-                      FlutterLogo(),
-                      Expanded(
-                        child: ListView.builder(
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            alignment: Alignment.center, 
-                            child: Text(
-                              snapshot.data![index].name
-                            )
-                          );
-                        }
-                      ),
-                      ),
-                    ],
+                  return Center(
+                    child: Column(
+                      children: [
+                        FlutterLogo(),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: DataTable(
+                              columns: [
+                                DataColumn(label: Text('Name')),
+                                DataColumn(label: Text('Author')),
+                                DataColumn(label: Text('Listens')),
+                                DataColumn(label: Text('Track Length'))
+                              ],
+                              rows: 
+                                snapshot.data!
+                                  .map(
+                                    (item) => DataRow(cells: [
+                                      DataCell(Text(item.name)),
+                                      DataCell(Text(item.author.username)),
+                                      DataCell(Text(item.listens.toString())),
+                                      DataCell(Text(item.track_length.toString())),
+                                  ]),
+                                ).toList()
+                            ),
+                          )
+                        ),
+                      ],
+                    ),
                   );
                 } else {
                   return Center(
