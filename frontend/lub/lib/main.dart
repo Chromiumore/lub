@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   Future<List<Track>> getTracks() async {
     var response = await Dio()
     .get('http://localhost:8000/music');
-    final List<dynamic> tracksData = response.data['tracks'];
+    final List<dynamic> tracksData = response.data;
     List<Track> tracks = tracksData
       .map((item) => Track.fromJson(item as Map<String, dynamic>))
       .toList();
@@ -57,7 +57,9 @@ class _HomePageState extends State<HomePage> {
               builder:(context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
-                } else {
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
                   return Column(
                     children: [
                       FlutterLogo(),
@@ -75,6 +77,10 @@ class _HomePageState extends State<HomePage> {
                       ),
                       ),
                     ],
+                  );
+                } else {
+                  return Center(
+                    child: Text('No data found'),
                   );
                 }
               },
