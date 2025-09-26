@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:lub/models/track.dart';
 
@@ -51,16 +52,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               columns: [
                                 DataColumn(label: Text('Name')),
                                 DataColumn(label: Text('Author')),
-                                DataColumn(label: Text('Listens')),
-                                DataColumn(label: Text('Track Length'))
+                                DataColumn(label: Text('Track Length')),
                               ],
                               rows: 
                                 snapshot.data!
                                   .map(
                                     (item) => DataRow(cells: [
-                                      DataCell(Text(item.name)),
+                                      DataCell(TextButton(
+                                        onPressed: () => context.go('/music/${item.id}'),
+                                        child: Text(item.name),
+                                        )),
                                       DataCell(Text(item.author.username)),
-                                      DataCell(Text(item.listens.toString())),
                                       DataCell(Text(item.track_length.toString())),
                                   ]),
                                 ).toList()
