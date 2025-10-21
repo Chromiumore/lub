@@ -4,6 +4,7 @@ import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 
 import 'screens/home.dart';
 import 'screens/track.dart';
+import 'screens/navigation_sidebar.dart';
 
 void main() {
   JustAudioMediaKit.ensureInitialized();
@@ -12,14 +13,21 @@ void main() {
 
 final _router = GoRouter(
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => HomeScreen(),
-      ),
-      GoRoute(
-        path: '/music/:trackID',
-        builder: (context, state) => TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
-      ),
+    ShellRoute(
+      builder: (context, state, child) {
+        return MyNavigationSidebar(child: child);
+      },
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => HomeScreen(),
+        ),
+        GoRoute(
+          path: '/music/:trackID',
+          builder: (context, state) => TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
+        ),
+      ]
+    )
   ],
 );
 

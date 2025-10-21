@@ -33,7 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Test App"),),
       body: FutureBuilder<List<Track>>(
               future: _tracks,
               builder:(context, snapshot) {
