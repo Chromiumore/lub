@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 
 import 'screens/home.dart';
 import 'screens/track.dart';
 import 'screens/navigation_sidebar.dart';
+import 'audio_service/audio_manager_imp.dart';
 
 void main() {
-  JustAudioMediaKit.ensureInitialized();
   runApp(const MyApp());
+  AudioManagerImp.instance.init();
 }
 
 final _router = GoRouter(

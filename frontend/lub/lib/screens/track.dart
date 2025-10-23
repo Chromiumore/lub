@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:lub/audio_service/audio_manager_imp.dart';
 
 class TrackScreen extends StatefulWidget {
   final int trackID;
@@ -11,7 +11,7 @@ class TrackScreen extends StatefulWidget {
 }
 
 class _TrackScreenState extends State<TrackScreen> {
-  final _player = AudioPlayer();
+  final _audioManager = AudioManagerImp.instance;
 
   @override
   void initState() {
@@ -20,7 +20,7 @@ class _TrackScreenState extends State<TrackScreen> {
   }
 
   void _init() async {
-    await _player.setUrl('http://localhost:8000/music/${widget.trackID}/file');
+    await _audioManager.load('http://localhost:8000/music/${widget.trackID}/file');
   }
 
   @override
@@ -33,11 +33,7 @@ class _TrackScreenState extends State<TrackScreen> {
             Expanded(
               child: IconButton(
                 onPressed: () {
-                  if (_player.playing) {
-                    _player.stop();
-                  } else {
-                    _player.play();
-                  }
+                  _audioManager.processControlInput();
                 },
                 icon: Icon(Icons.play_arrow)
                 )
