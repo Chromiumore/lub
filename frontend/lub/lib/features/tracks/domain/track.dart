@@ -1,4 +1,4 @@
-import 'user.dart';
+import '../../../shared/models/user.dart';
 
 class Track {
   final int id;

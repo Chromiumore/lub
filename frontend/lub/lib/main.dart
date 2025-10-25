@@ -1,35 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import 'screens/home.dart';
-import 'screens/track.dart';
-import 'screens/navigation_sidebar.dart';
-import 'audio_service/audio_manager_imp.dart';
+import 'features/player/application/audio_player_service.dart';
+import 'core/navigation/router.dart';
 
 void main() {
   runApp(const MyApp());
-  AudioManagerImp.instance.init();
+  AudioPlayerService.instance.init();
 }
 
-final _router = GoRouter(
-  routes: [
-    ShellRoute(
-      builder: (context, state, child) {
-        return MyNavigationSidebar(child: child);
-      },
-      routes: [
-        GoRoute(
-          path: '/',
-          builder: (context, state) => HomeScreen(),
-        ),
-        GoRoute(
-          path: '/music/:trackID',
-          builder: (context, state) => TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
-        ),
-      ]
-    )
-  ],
-);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -37,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _router,
+      routerConfig: router,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

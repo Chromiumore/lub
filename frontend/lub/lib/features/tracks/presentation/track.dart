@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lub/audio_service/audio_manager_imp.dart';
+import 'package:lub/features/player/application/audio_player_service.dart';
 
 class TrackScreen extends StatefulWidget {
   final int trackID;
@@ -11,7 +11,7 @@ class TrackScreen extends StatefulWidget {
 }
 
 class _TrackScreenState extends State<TrackScreen> {
-  final _audioManager = AudioManagerImp.instance;
+  final _audioManager = AudioPlayerService.instance;
 
   @override
   void initState() {
