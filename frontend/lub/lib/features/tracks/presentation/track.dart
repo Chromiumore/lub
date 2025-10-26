@@ -25,21 +25,19 @@ class _TrackScreenState extends State<TrackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          children: [
-            Text(widget.trackID.toString()),
-            Expanded(
-              child: IconButton(
-                onPressed: () {
-                  _audioManager.processControlInput();
-                },
-                icon: Icon(Icons.play_arrow)
-                )
+    return Center(
+      child: Column(
+        children: [
+          Text(widget.trackID.toString()),
+          Expanded(
+            child: IconButton(
+              onPressed: () {
+                _audioManager.processControlInput();
+              },
+              icon: Icon(Icons.play_arrow)
               )
-          ],
-        ),
+            )
+        ],
       ),
     );
   }

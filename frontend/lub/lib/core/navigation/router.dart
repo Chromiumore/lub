@@ -1,7 +1,9 @@
 import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 
 import '../../features/tracks/presentation/home.dart';
 import '../../features/tracks/presentation/track.dart';
+import '../../features/player/presentation/mini_player.dart';
 import '../widgets/navigation_sidebar.dart';
 
 
@@ -12,13 +14,27 @@ final router = GoRouter(
         return MyNavigationSidebar(child: child);
       },
       routes: [
-        GoRoute(
-          path: '/',
-          builder: (context, state) => HomeScreen(),
-        ),
-        GoRoute(
-          path: '/music/:trackID',
-          builder: (context, state) => TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
+        ShellRoute(
+          builder: (context, state, child) {
+            return Scaffold(
+              body: Column(
+                children: [
+                  Expanded(child: child),
+                  MiniPlayer(),
+                ],
+              )
+            );
+          },
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (context, state) => HomeScreen(),
+            ),
+            GoRoute(
+              path: '/music/:trackID',
+              builder: (context, state) => TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
+            ),
+          ]
         ),
       ]
     )
