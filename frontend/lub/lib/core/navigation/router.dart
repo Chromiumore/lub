@@ -11,7 +11,11 @@ final router = GoRouter(
   routes: [
     ShellRoute(
       builder: (context, state, child) {
-        return MyNavigationSidebar(child: child);
+        return Scaffold(
+          appBar: AppBar(title: const Text('LUB')),
+          body: child,
+          drawer: MyNavigationSidebar(),
+        );
       },
       routes: [
         ShellRoute(
@@ -30,11 +34,11 @@ final router = GoRouter(
               path: '/',
               builder: (context, state) => HomeScreen(),
             ),
-            GoRoute(
-              path: '/music/:trackID',
-              builder: (context, state) => TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
-            ),
           ]
+        ),
+        GoRoute(
+          path: '/music/:trackID',
+          builder: (context, state) => TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
         ),
       ]
     )
