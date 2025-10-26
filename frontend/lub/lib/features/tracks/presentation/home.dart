@@ -40,34 +40,19 @@ class _HomeScreenState extends State<HomeScreen> {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
-          return Center(
-            child: Column(
-              children: [
-                FlutterLogo(),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: DataTable(
-                      columns: [
-                        DataColumn(label: Text('Name')),
-                        DataColumn(label: Text('Author')),
-                        DataColumn(label: Text('Track Length')),
-                      ],
-                      rows: 
-                        snapshot.data!
-                          .map(
-                            (item) => DataRow(cells: [
-                              DataCell(TextButton(
-                                onPressed: () => context.go('/music/${item.id}'),
-                                child: Text(item.name),
-                                )),
-                              DataCell(Text(item.author.username)),
-                              DataCell(Text(item.track_length.toString())),
-                          ]),
-                        ).toList()
-                    ),
-                  )
-                ),
-              ],
+          return Expanded(
+            child: ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final track = snapshot.data![index];
+                return ListTile(
+                  leading: FlutterLogo(),
+                  title: Text(track.name),
+                  subtitle: Text(track.author.username),
+                  trailing: Text(track.track_length.toString()),
+                  onTap: () => context.go('/music/${track.id}'),
+                );
+              },
             ),
           );
         } else {
