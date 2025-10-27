@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 leading: FlutterLogo(),
                 title: Text(track.name),
                 subtitle: Text(track.author.username),
-                trailing: Text(track.track_length.toString()),
+                trailing: Text(track.trackLength.toString()),
                 onTap: () => context.go('/music/${track.id}'),
               );
             },
