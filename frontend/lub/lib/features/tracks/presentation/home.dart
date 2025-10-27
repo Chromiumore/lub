@@ -40,20 +40,18 @@ class _HomeScreenState extends State<HomeScreen> {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (snapshot.hasData) {
-          return Expanded(
-            child: ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final track = snapshot.data![index];
-                return ListTile(
-                  leading: FlutterLogo(),
-                  title: Text(track.name),
-                  subtitle: Text(track.author.username),
-                  trailing: Text(track.track_length.toString()),
-                  onTap: () => context.go('/music/${track.id}'),
-                );
-              },
-            ),
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              final track = snapshot.data![index];
+              return ListTile(
+                leading: FlutterLogo(),
+                title: Text(track.name),
+                subtitle: Text(track.author.username),
+                trailing: Text(track.track_length.toString()),
+                onTap: () => context.go('/music/${track.id}'),
+              );
+            },
           );
         } else {
           return Center(
