@@ -32,6 +32,10 @@ class AudioPlayerService {
     _player.stop();
   }
 
+  bool isPlaying() {
+    return _player.playing;
+  }
+
   void processControlInput() {
     if (_player.playing) {
       _player.pause();

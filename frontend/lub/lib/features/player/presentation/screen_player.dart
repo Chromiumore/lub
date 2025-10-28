@@ -14,10 +14,12 @@ class ScreenPlayer extends StatefulWidget {
 
 class _ScreenPlayerState extends State<ScreenPlayer> {
     final _playerService = AudioPlayerService.instance;
+    bool _isPlaying = false;
     
     @override
     void initState() {
       _init();
+      _isPlaying = _playerService.isPlaying();
       super.initState();
     }
     
@@ -56,8 +58,13 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
                 icon: Icon(Icons.fast_rewind)
               ),
               IconButton(
-                onPressed: () => (_playerService.processControlInput()),
-                icon: Icon(Icons.play_arrow)
+                onPressed: () {
+                  _playerService.processControlInput();
+                  setState(() {
+                    _isPlaying = !_isPlaying;
+                  });
+                  },
+                icon: _isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow)
               ),
               IconButton(
                 onPressed: () => (),
