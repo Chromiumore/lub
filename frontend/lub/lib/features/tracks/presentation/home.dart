@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:lub/features/tracks/domain/track.dart';
+import 'package:lub/features/tracks/data/track.dart';
+import 'package:lub/features/tracks/data/track_repository.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,21 +14,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Track>> _tracks;
+  final TrackRepository _trackRepository = TrackRepository();
 
   @override
   void initState() {
     super.initState();
-    _tracks = getTracks();
+    _init();
   }
 
-  Future<List<Track>> getTracks() async {
-    var response = await Dio()
-    .get('http://localhost:8000/music');
-    final List<dynamic> tracksData = response.data;
-    List<Track> tracks = tracksData
-      .map((item) => Track.fromJson(item as Map<String, dynamic>))
-      .toList();
-    return Future.value(tracks);
+  void _init() async {
+    _tracks = _trackRepository.getTracks();
   }
 
   @override

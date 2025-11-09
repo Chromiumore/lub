@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:lub/features/tracks/data/track_repository.dart';
 
 import '../../player/presentation/screen_player.dart';
-import '../domain/track.dart';
+import '../data/track.dart';
 
 class TrackScreen extends StatefulWidget {
   final int trackID;
@@ -15,18 +16,16 @@ class TrackScreen extends StatefulWidget {
 
 class _TrackScreenState extends State<TrackScreen> {
   late Future<Track> _track;
+  final TrackRepository _trackRepository = TrackRepository();
 
   @override
   void initState() {
     super.initState();
-    _track = getTrack();
+    _init();
   }
 
-  Future<Track> getTrack() async {
-    var response = await Dio()
-    .get('http://localhost:8000/music/${widget.trackID}');
-    Track track = Track.fromJson(response.data!);
-    return Future.value(track);
+  void _init() async {
+    _track = _trackRepository.getTrack(widget.trackID);
   }
 
   @override
