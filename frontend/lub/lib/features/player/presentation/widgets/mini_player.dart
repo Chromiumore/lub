@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lub/features/player/application/audio_player_service.dart';
 
 class MiniPlayer extends StatefulWidget {
   const MiniPlayer({super.key});
@@ -8,6 +9,15 @@ class MiniPlayer extends StatefulWidget {
 }
 
 class _MiniPlayerState extends State<MiniPlayer> {
+  final _playerService = AudioPlayerService.instance;
+  bool _isPlaying = false;
+  
+  @override
+  void initState() {
+    _isPlaying = _playerService.isPlaying();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -25,8 +35,13 @@ class _MiniPlayerState extends State<MiniPlayer> {
                 icon: Icon(Icons.fast_rewind)
               ),
               IconButton(
-                onPressed: () => (),
-                icon: Icon(Icons.play_arrow)
+                onPressed: () {
+                  _playerService.processControlInput();
+                  setState(() {
+                    _isPlaying = !_isPlaying;
+                  });
+                },
+                icon: _isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow)
               ),
               IconButton(
                 onPressed: () => (),
