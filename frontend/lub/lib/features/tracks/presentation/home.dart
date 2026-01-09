@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:lub/features/tracks/data/track.dart';
-import 'package:lub/features/tracks/data/track_repository.dart';
+import 'package:lub/features/tracks/data/models/track.dart';
+import 'package:lub/features/tracks/data/repositories/track_repository.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

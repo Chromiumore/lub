@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:lub/features/tracks/data/track.dart';
+import 'package:lub/features/tracks/data/models/track.dart';
 
 class TrackRepository {
   final Dio dio = Dio();

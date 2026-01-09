@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../features/tracks/presentation/home.dart';
 import '../../features/tracks/presentation/track.dart';
-import '../../features/player/presentation/mini_player.dart';
+import '../../features/player/presentation/widgets/mini_player.dart';
 import '../widgets/navigation_sidebar.dart';
 
 

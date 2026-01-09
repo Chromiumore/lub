@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lub/features/tracks/data/track_repository.dart';
+import 'package:lub/features/tracks/data/repositories/track_repository.dart';
 
-import '../../player/presentation/screen_player.dart';
-import '../data/track.dart';
+import '../../player/presentation/widgets/screen_player.dart';
+import '../data/models/track.dart';
 
 class TrackScreen extends StatefulWidget {
   final int trackID;
