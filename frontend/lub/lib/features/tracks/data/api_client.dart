@@ -12,19 +12,19 @@ class ApiClient {
     _dio = Dio(_options);
   }
   
-  Future<Track> getTrack(int trackID) async {
+  Future<TrackModel> getTrack(int trackID) async {
     var response = await _dio
     .get('/music/$trackID');
-    Track track = Track.fromJson(response.data!);
+    TrackModel track = TrackModel.fromJson(response.data!);
     return Future.value(track);
   }
 
-  Future<List<Track>> getTracks() async {
+  Future<List<TrackModel>> getTracks() async {
     var response = await _dio
     .get('/music');
     final List<dynamic> tracksData = response.data;
-    List<Track> tracks = tracksData
-      .map((item) => Track.fromJson(item as Map<String, dynamic>))
+    List<TrackModel> tracks = tracksData
+      .map((item) => TrackModel.fromJson(item as Map<String, dynamic>))
       .toList();
     return Future.value(tracks);
   }

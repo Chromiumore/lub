@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Future<List<Track>> _tracks;
+  late Future<List<TrackModel>> _tracks;
   final TrackRepository _trackRepository = TrackRepository();
 
   @override
@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Track>>(
+    return FutureBuilder<List<TrackModel>>(
       future: _tracks,
       builder:(context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

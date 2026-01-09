@@ -14,7 +14,7 @@ class TrackScreen extends StatefulWidget {
 }
 
 class _TrackScreenState extends State<TrackScreen> {
-  late Future<Track> _track;
+  late Future<TrackModel> _track;
   final TrackRepository _trackRepository = TrackRepository();
 
   @override

@@ -6,7 +6,7 @@ import '../../../tracks/data/models/track.dart';
 class ScreenPlayer extends StatefulWidget {
   const ScreenPlayer({super.key, required this.track});
 
-  final Track track;
+  final TrackModel track;
 
   @override
   State<ScreenPlayer> createState() => _ScreenPlayerState();
