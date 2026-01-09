@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:lub/features/tracks/data/models/track.dart';
 import 'package:lub/features/tracks/data/repositories/track_repository.dart';
+import 'package:lub/features/tracks/domain/entities/track.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Future<List<TrackModel>> _tracks;
+  late Future<List<Track>> _tracks;
   final TrackRepository _trackRepository = TrackRepository();
 
   @override
@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<TrackModel>>(
+    return FutureBuilder<List<Track>>(
       future: _tracks,
       builder:(context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

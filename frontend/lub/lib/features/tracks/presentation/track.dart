@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lub/features/tracks/data/repositories/track_repository.dart';
+import 'package:lub/features/tracks/domain/entities/track.dart';
 
 import '../../player/presentation/widgets/screen_player.dart';
-import '../data/models/track.dart';
 
 class TrackScreen extends StatefulWidget {
   final int trackID;
@@ -14,7 +14,7 @@ class TrackScreen extends StatefulWidget {
 }
 
 class _TrackScreenState extends State<TrackScreen> {
-  late Future<TrackModel> _track;
+  late Future<Track> _track;
   final TrackRepository _trackRepository = TrackRepository();
 
   @override

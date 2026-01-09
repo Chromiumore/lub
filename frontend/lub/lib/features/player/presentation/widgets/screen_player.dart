@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:lub/features/player/application/audio_player_service.dart';
-import '../../../tracks/data/models/track.dart';
+import 'package:lub/features/tracks/domain/entities/track.dart';
 
 class ScreenPlayer extends StatefulWidget {
   const ScreenPlayer({super.key, required this.track});
 
-  final TrackModel track;
+  final Track track;
 
   @override
   State<ScreenPlayer> createState() => _ScreenPlayerState();
