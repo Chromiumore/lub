@@ -1,17 +1,23 @@
+from typing import Annotated, Generator
+from fastapi import Depends
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 from .config import Config
 
 config = Config.load()
 
+DATABASE_URL = config.db.get_db_url()
 
-class DatabaseHelper:
-    def __init__(self, url: str):
-        self.engine = create_engine(url)
-        self.session_maker = sessionmaker(bind=self.engine)
+engine = create_engine(DATABASE_URL)
 
+SessionLocal = sessionmaker(bind=engine)
 
-db_helper = DatabaseHelper(
-    config.db.get_db_url(),
-)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+DBSession = Annotated[Session, Depends(get_db)]
