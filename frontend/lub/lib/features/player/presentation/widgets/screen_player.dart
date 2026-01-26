@@ -30,49 +30,50 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Column(
-        children: [
-          Container(
-            child: Image.asset(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 24),
+        child: Column(
+          children: [
+            Image.asset(
               'assets/images/photosintesis.jpg',
               height: 300,
               width: 300,
-            )
-          ),
-          Text(
-            widget.track.name,
-            style: TextStyle(
-              fontSize: 20,
             ),
-          ),
-          Text(widget.track.author.username),
-          Slider(
-          value: 0.5,
-          onChanged: (value) {}
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                onPressed: () => (),
-                icon: Icon(Icons.fast_rewind)
+            Text(
+              widget.track.name,
+              style: TextStyle(
+                fontSize: 20,
               ),
-              IconButton(
-                onPressed: () {
-                  _playerService.processControlInput();
-                  setState(() {
-                    _isPlaying = !_isPlaying;
-                  });
-                  },
-                icon: _isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow)
-              ),
-              IconButton(
-                onPressed: () => (),
-                icon: Icon(Icons.fast_forward)
-              ),
-            ],
-          )
-        ],
+            ),
+            Text(widget.track.author.username),
+            Slider(
+            value: 0.5,
+            onChanged: (value) {}
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: () => (),
+                  icon: Icon(Icons.fast_rewind)
+                ),
+                IconButton(
+                  onPressed: () {
+                    _playerService.processControlInput();
+                    setState(() {
+                      _isPlaying = !_isPlaying;
+                    });
+                    },
+                  icon: _isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow)
+                ),
+                IconButton(
+                  onPressed: () => (),
+                  icon: Icon(Icons.fast_forward)
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
