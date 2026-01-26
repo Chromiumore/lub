@@ -27,33 +27,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Track>>(
-      future: _tracks,
-      builder:(context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else if (snapshot.hasData) {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final track = snapshot.data![index];
-              return ListTile(
-                leading: FlutterLogo(),
-                title: Text(track.name),
-                subtitle: Text(track.author.username),
-                trailing: Text(track.trackLength.toString()),
-                onTap: () => context.go('/music/${track.id}'),
-              );
-            },
-          );
-        } else {
-          return Center(
-            child: Text('No data found'),
-          );
-        }
-      },
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: FutureBuilder<List<Track>>(
+        future: _tracks,
+        builder:(context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final track = snapshot.data![index];
+                return ListTile(
+                  leading: FlutterLogo(),
+                  title: Text(track.name),
+                  subtitle: Text(track.author.username),
+                  trailing: Text(track.trackLength.toString()),
+                  onTap: () => context.go('/music/${track.id}'),
+                );
+              },
+            );
+          } else {
+            return Center(
+              child: Text('No data found'),
+            );
+          }
+        },
+      ),
     );
   }
 }
