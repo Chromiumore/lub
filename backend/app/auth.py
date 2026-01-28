@@ -43,14 +43,10 @@ def login(session: DBSession, creds: LoginSchema):
     return {'access_token': token}
 
 
-@router.get('/protected', dependencies=[Depends(auth.get_token_from_request)])
-def protected(session: DBSession, token: RequestToken = Depends()):
+@router.get('/protected')
+def protected(session: DBSession, payload: RequestToken = Depends(auth.access_token_required)):
     try:
-        auth.verify_token(token=token)
-
-        payload = TokenPayload.decode(token.token, Config.load().auth.secret_key.get_secret_value())
         db_user = session.query(User).filter_by(id=payload.sub).first()
-
         return {"message": f'Hello {db_user.username}!'}
     except Exception as e:
         raise HTTPException(401, detail={"message": str(e)}) from e
