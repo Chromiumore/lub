@@ -16,6 +16,10 @@ class MyNavigationSidebar extends StatelessWidget {
           ListTile(
             title: const Text('Home'),
             onTap: () => context.go('/'),
+          ),
+          ListTile(
+            title: const Text('Upload'),
+            onTap: () => context.go('/upload'),
           )
         ],
       ),

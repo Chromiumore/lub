@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:lub/features/tracks/presentation/upload.dart';
 
 import '../../features/tracks/presentation/home.dart';
 import '../../features/tracks/presentation/track.dart';
@@ -40,6 +41,10 @@ final router = GoRouter(
           path: '/music/:trackID',
           builder: (context, state) => TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
         ),
+        GoRoute(
+          path: '/upload',
+          builder: (context, state) => UploadTrackScreen(),
+        )
       ]
     )
   ],
