@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:lub/features/tracks/data/models/track.dart';
+import 'package:lub/features/tracks/data/models/create_track_request.dart';
+import 'package:lub/features/tracks/data/models/track_response.dart';
 
 class ApiClient {
   final String _host = 'localhost';
@@ -12,20 +13,24 @@ class ApiClient {
     _dio = Dio(_options);
   }
   
-  Future<TrackModel> getTrack(int trackID) async {
+  Future<TrackResponse> getTrack(int trackID) async {
     var response = await _dio
     .get('/music/$trackID');
-    TrackModel track = TrackModel.fromJson(response.data!);
+    TrackResponse track = TrackResponse.fromJson(response.data!);
     return Future.value(track);
   }
 
-  Future<List<TrackModel>> getTracks() async {
+  Future<List<TrackResponse>> getTracks() async {
     var response = await _dio
     .get('/music');
     final List<dynamic> tracksData = response.data;
-    List<TrackModel> tracks = tracksData
-      .map((item) => TrackModel.fromJson(item as Map<String, dynamic>))
+    List<TrackResponse> tracks = tracksData
+      .map((item) => TrackResponse.fromJson(item as Map<String, dynamic>))
       .toList();
     return Future.value(tracks);
+  }
+
+  Future<void> postTracks(CreateTrackRequest trackModel) async {
+    await _dio.post('/music/', data: trackModel.toJson());
   }
 }
