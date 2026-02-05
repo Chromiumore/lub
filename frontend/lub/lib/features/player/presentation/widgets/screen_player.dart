@@ -40,12 +40,12 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
               width: 300,
             ),
             Text(
-              widget.track.name,
+              widget.track.name!,
               style: TextStyle(
                 fontSize: 20,
               ),
             ),
-            Text(widget.track.author.username),
+            Text(widget.track.author!.username),
             Slider(
             value: 0.5,
             onChanged: (value) {}

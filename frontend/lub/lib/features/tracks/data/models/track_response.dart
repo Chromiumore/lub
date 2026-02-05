@@ -26,10 +26,10 @@ class TrackResponse implements ResponseModel {
   @override
   factory TrackResponse.fromEntity(Track track) {
     return TrackResponse(
-      id: track.id,
-      name: track.name,
+      id: track.id!,
+      name: track.name!,
       trackLength: track.trackLength!,
-      author: track.author,
+      author: track.author!,
       listens: track.listens!
     );
   }

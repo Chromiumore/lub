@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:lub/features/tracks/data/repositories/track_repository.dart';
+import 'package:lub/features/tracks/domain/entities/track.dart';
 
 class UploadTrackScreen extends StatefulWidget {
   const UploadTrackScreen({super.key});
@@ -12,7 +14,10 @@ class UploadTrackScreen extends StatefulWidget {
 
 class _UploadTrackScreenState extends State<UploadTrackScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
   File? _trackFile;
+
+  final TrackRepository _trackRepository = TrackRepository();
 
   Future<void> _pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -36,14 +41,9 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
           spacing: 20.0,
           children: [
             TextFormField(
+              controller: _nameController,
               decoration: InputDecoration(
                 label: Text('Title'),
-              ),
-            ),
-
-            TextFormField(
-              decoration: InputDecoration(
-                label: Text('Author ID'),
               ),
             ),
 
@@ -70,8 +70,11 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
             ),
 
             ElevatedButton(
-              onPressed: () => {
+              onPressed: () async {
+                Track track = Track(name: _nameController.text);
+                String path = _trackFile!.path;
                 
+                _trackRepository.createTrack(track, path);
               },
               child: Text('Send')
             ),
@@ -79,5 +82,11 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
         )
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
   }
 }

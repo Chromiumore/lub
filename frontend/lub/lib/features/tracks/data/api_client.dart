@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:lub/features/tracks/data/models/create_track_request.dart';
 import 'package:lub/features/tracks/data/models/track_response.dart';
@@ -30,7 +32,14 @@ class ApiClient {
     return Future.value(tracks);
   }
 
-  Future<void> postTracks(CreateTrackRequest trackModel) async {
-    await _dio.post('/music/', data: trackModel.toJson());
+  Future<void> postTracks(CreateTrackRequest trackModel, String path) async {
+    FormData formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        path,
+        filename: path.split('/').last,
+      ),
+      'track': jsonEncode(trackModel.toJson()),
+    });
+    await _dio.post('/music/', data: formData);
   }
 }

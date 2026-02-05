@@ -17,7 +17,7 @@ class TrackRepository {
     return entities;
   }
 
-  Future<void> createTrack(Track track) async {
-    await api.postTracks(CreateTrackRequest.fromEntity(track));
+  Future<void> createTrack(Track track, String path) async {
+    await api.postTracks(CreateTrackRequest.fromEntity(track), path);
   }
 }
