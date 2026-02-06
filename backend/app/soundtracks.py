@@ -30,6 +30,7 @@ async def create(
         )
     session.add(track)
     session.flush()
+    session.refresh(track)
 
     _, ext = os.path.splitext(file.filename)
     db_file = FileDB(
@@ -44,6 +45,8 @@ async def create(
     with open(f'{Config.load().files.path}/{db_file.storage_filename}', 'wb') as out_file:
         content = await file.read()
         out_file.write(content)
+
+    return track.id
 
 
 @router.get('/music/{track_id}', response_model=SoundtrackResponse)
