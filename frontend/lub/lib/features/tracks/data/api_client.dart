@@ -18,7 +18,7 @@ class ApiClient {
   Future<TrackResponse> getTrack(int trackID) async {
     var response = await _dio
     .get('/music/$trackID');
-    TrackResponse track = TrackResponse.fromJson(response.data!);
+    TrackResponse track = TrackResponse.fromMap(response.data!);
     return Future.value(track);
   }
 
@@ -27,7 +27,7 @@ class ApiClient {
     .get('/music');
     final List<dynamic> tracksData = response.data;
     List<TrackResponse> tracks = tracksData
-      .map((item) => TrackResponse.fromJson(item as Map<String, dynamic>))
+      .map((item) => TrackResponse.fromMap(item as Map<String, dynamic>))
       .toList();
     return Future.value(tracks);
   }
@@ -38,7 +38,7 @@ class ApiClient {
         path,
         filename: path.split('/').last,
       ),
-      'track': jsonEncode(trackModel.toJson()),
+      'track': jsonEncode(trackModel.toMap()),
     });
     await _dio.post('/music/', data: formData);
   }

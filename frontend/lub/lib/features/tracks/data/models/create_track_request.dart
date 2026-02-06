@@ -16,7 +16,7 @@ class CreateTrackRequest implements RequestModel {
   }
 
   @override
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
       'author_id': authorId,

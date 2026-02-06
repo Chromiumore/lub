@@ -13,7 +13,7 @@ class TrackResponse implements ResponseModel {
   TrackResponse({required this.id, required this.name, required this.trackLength, required this.author, required this.listens});
 
   @override
-  factory TrackResponse.fromJson(Map<String, dynamic> json) {
+  factory TrackResponse.fromMap(Map<String, dynamic> json) {
     return TrackResponse(
       id: json['id'] as int,
       name: json['name'] as String,
