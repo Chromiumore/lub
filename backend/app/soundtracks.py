@@ -11,11 +11,6 @@ from .config import Config
 
 router = APIRouter()
 
-@router.get('/')
-def index():
-    return {'test': 'Hello World!'}
-
-
 @router.post('/music/', status_code=201)
 async def create(
     session: DBSession,
