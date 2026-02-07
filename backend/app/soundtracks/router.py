@@ -1,13 +1,15 @@
 import os
 from uuid import uuid4
+
 from fastapi import UploadFile, File, APIRouter, Body
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import selectinload
-from .database import DBSession
+
+from ..database import DBSession
 from .schemas import SoundtrackSchema, SoundtrackResponse
-from .models import Soundtrack
-from .models import File as FileDB
-from .config import Config
+from ..models import Soundtrack
+from ..models import File as FileDB
+from ..config import Config
 
 router = APIRouter()
 

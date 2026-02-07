@@ -1,4 +1,5 @@
 from enum import Enum
+
 from sqlalchemy import Integer, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import ENUM as pgEnum

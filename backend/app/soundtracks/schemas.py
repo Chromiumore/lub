@@ -1,4 +1,5 @@
 import json
+
 from pydantic import BaseModel, SecretStr, EmailStr, model_validator
 
 
@@ -14,17 +15,6 @@ class SoundtrackSchema(BaseModel):
         if isinstance(value, str):
             return cls(**json.loads(value))
         return value
-
-
-class RegisterSchema(BaseModel):
-    username: str
-    password: SecretStr
-    email: EmailStr
-
-
-class LoginSchema(BaseModel):
-    email: EmailStr
-    password: SecretStr
 
 
 class UserResponse(BaseModel):
