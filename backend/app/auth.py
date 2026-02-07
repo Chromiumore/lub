@@ -13,7 +13,6 @@ config = AuthXConfig(
 
 auth = AuthX(config=config)
 
-
 router = APIRouter()
 
 
@@ -39,8 +38,26 @@ def login(session: DBSession, creds: LoginSchema):
     db_user = session.query(User).filter_by(email=email, password_hash=sha256(password.encode('utf-8')).hexdigest()).first()
     if not db_user:
         raise HTTPException(status_code=401, detail="Incorrect email or password")
-    token = auth.create_access_token(uid=str(db_user.id))
-    return {'access_token': token}
+    access_token = auth.create_access_token(uid=str(db_user.id), fresh=True)
+    refresh_token = auth.create_refresh_token(uid=str(db_user.id))
+    return {
+        'access_token': access_token,
+        'refresh_token': refresh_token
+        }
+
+
+@router.get('/refresh')
+def refresh(session: DBSession, payload: RequestToken = Depends(auth.refresh_token_required)):
+    db_user = session.query(User).filter_by(id=str(payload.sub)).first()
+    if not db_user:
+        raise HTTPException(status_code=400, detail="Bad token")
+    new_access_token = auth.create_access_token(uid=payload.sub)
+    new_refresh_token = auth.create_refresh_token(uid=payload.sub)
+    
+    return {
+        'access_token': new_access_token,
+        'refresh_token': new_refresh_token
+    }
 
 
 @router.get('/protected')
