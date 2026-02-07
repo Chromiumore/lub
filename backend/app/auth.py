@@ -129,7 +129,7 @@ def refresh(session: DBSession, payload: dict = Depends(auth.require_refresh_tok
     return {
         'access_token': new_access_token,
         'refresh_token': new_refresh_token
-    }
+        }
 
 
 @router.get('/protected')
