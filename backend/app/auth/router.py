@@ -1,4 +1,5 @@
 from hashlib import sha256
+from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Depends
 
@@ -50,7 +51,7 @@ def login(session: DBSession, creds: LoginSchema):
 
 
 @router.get('/refresh')
-def refresh(session: DBSession, payload: dict = Depends(auth.require_refresh_token)):
+def refresh(session: DBSession, payload: Annotated[dict, Depends(auth.require_refresh_token)]):
     db_user = session.query(User).filter_by(id=payload.get('sub')).first()
     if not db_user:
         raise HTTPException(status_code=400, detail='Bad token. Unable to recognize owner')
@@ -64,7 +65,7 @@ def refresh(session: DBSession, payload: dict = Depends(auth.require_refresh_tok
 
 
 @router.get('/protected')
-def protected(session: DBSession, payload: dict = Depends(auth.require_access_token)):
+def protected(session: DBSession, payload: Annotated[dict, Depends(auth.require_access_token)]):
     try:
         db_user = session.query(User).filter_by(id=payload.get('sub')).first()
         return {"message": f'Hello {db_user.username}!'}

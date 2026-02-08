@@ -1,6 +1,6 @@
 import datetime
 from datetime import timedelta, datetime, timezone
-from typing import Optional, Literal, Sequence
+from typing import Annotated, Optional, Literal, Sequence
 
 import jwt
 from fastapi import HTTPException, Depends, status
@@ -50,7 +50,7 @@ class AuthService:
                 detail='Invalid token'
             )
 
-    def require_access_token(self, creds: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    def require_access_token(self, creds: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())]):
         token = creds.credentials   
         payload = self._decode_token(token)
         if payload.get('type') != 'access':
@@ -60,7 +60,7 @@ class AuthService:
             )
         return payload
     
-    def require_refresh_token(self, creds: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    def require_refresh_token(self, creds: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())]):
         token = creds.credentials
         payload = self._decode_token(token)
         if payload.get('type') != 'refresh':
