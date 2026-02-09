@@ -1,13 +1,13 @@
 import os
 from uuid import uuid4
+from typing import Annotated
 
-from fastapi import UploadFile, File, APIRouter, Body
+from fastapi import UploadFile, File, APIRouter, Body, Depends
 from fastapi.responses import FileResponse
-from sqlalchemy.orm import selectinload
 
 from ..database import DBSession
+from ..repositories.soundtracks_repositroy import SoundtracksRepository
 from .schemas import SoundtrackSchema, SoundtrackResponse
-from ..models import Soundtrack
 from ..models import File as FileDB
 from ..config import Config
 
@@ -16,18 +16,11 @@ router = APIRouter()
 @router.post('/music/', status_code=201)
 async def create(
     session: DBSession,
+    track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)],
     file: UploadFile = File(...),
     track: SoundtrackSchema = Body(...),
 ):
-    track = Soundtrack(
-            name=track.name,
-            author_id=track.author_id,
-            track_length=track.track_length,
-            listens=track.listens,
-        )
-    session.add(track)
-    session.flush()
-    session.refresh(track)
+    db_track = track_repo.add(track=track)
 
     _, ext = os.path.splitext(file.filename)
     db_file = FileDB(
@@ -43,13 +36,13 @@ async def create(
         content = await file.read()
         out_file.write(content)
 
-    return track.id
+    return db_track.id
 
 
 @router.get('/music/{track_id}', response_model=SoundtrackResponse)
-def get(session: DBSession, track_id: int):
-    track = session.query(Soundtrack).options(selectinload(Soundtrack.author)).filter_by(id=track_id).first()
-    return track
+def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
+    db_track = track_repo.get_by_id(track_id=track_id)
+    return db_track
 
 
 @router.get('/music/{track_id}/file')
@@ -61,18 +54,14 @@ def download_file(session: DBSession, track_id: int):
 
 
 @router.get('/music', response_model=list[SoundtrackResponse])
-def get_all(session: DBSession):
-    tracks = session.query(Soundtrack).options(selectinload(Soundtrack.author)).all()
-    return tracks
+def get_all(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)]):
+    db_tracks = track_repo.get()
+    return db_tracks
 
 
 @router.put('/music/{track_id}', response_model=SoundtrackResponse)
-def update(session: DBSession, track_id: int, track: SoundtrackSchema):
-    db_track = session.query(Soundtrack).options(selectinload(Soundtrack.author)).filter_by(id=track_id).first()
-    for key, value in track.model_dump().items():
-        setattr(db_track, key, value)
-    session.commit()
-    session.refresh(db_track)
+def update(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int, track: SoundtrackSchema):
+    db_track = track_repo.update(track_id=track_id, track=track)
     return db_track
 
 
@@ -92,11 +81,10 @@ async def update_file(session: DBSession, track_id: int, file: UploadFile):
 
 
 @router.delete('/music/{track_id}/')
-def delete(session: DBSession, track_id: int):
+def delete(session: DBSession, track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
     db_file = session.query(FileDB).filter_by(soundtrack_id=track_id).first()
     filename = db_file.storage_filename
 
-    session.query(Soundtrack).filter_by(id=track_id).delete()
-    session.commit()
+    track_repo.delete(track_id=track_id)
 
     os.remove(f'{Config.load().files.path}/{filename}')
