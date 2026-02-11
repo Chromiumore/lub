@@ -7,7 +7,7 @@ from ..auth.schemas import RegisterSchema
 from ..models import User
 from ..database import DBSession
 
-class UserRepositroy:
+class UsersRepositroy:
     def __init__(self, session: DBSession):
         self._session = session
 
@@ -31,4 +31,4 @@ class UserRepositroy:
         self._session.refresh(user)
         return user
 
-UserRepositoryDependency = Annotated[UserRepositroy, Depends(UserRepositroy)]
+UsersRepositoryDependency = Annotated[UsersRepositroy, Depends(UsersRepositroy)]
