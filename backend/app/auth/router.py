@@ -1,12 +1,10 @@
-from hashlib import sha256
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Depends
 
+from ..repositories.user_repository import UserRepositoryDependency
 from ..config import Config
 from .schemas import LoginSchema, RegisterSchema
-from ..database import DBSession
-from ..models import User
 from .service import AuthService, AuthConfig
     
 
@@ -21,25 +19,15 @@ router = APIRouter()
 
 
 @router.post('/register', status_code=201)
-def register(session: DBSession, creds: RegisterSchema):
-    email = creds.email
-    username = creds.username
-    password = creds.password.get_secret_value()
-    session.add(
-        User(
-            email=email,
-            username=username,
-            password_hash=sha256(password.encode('utf-8')).hexdigest(),
-        )
-    )
-    session.commit()
+def register(user_repo: UserRepositoryDependency, creds: RegisterSchema):
+    user_repo.add(creds=creds)
 
 
 @router.post('/login')
-def login(session: DBSession, creds: LoginSchema):
+def login(user_repo: UserRepositoryDependency, creds: LoginSchema):
     email = creds.email
     password = creds.password.get_secret_value()
-    db_user = session.query(User).filter_by(email=email, password_hash=sha256(password.encode('utf-8')).hexdigest()).first()
+    db_user = user_repo.get_by_email_and_password(email, password)
     if not db_user:
         raise HTTPException(status_code=401, detail="Incorrect email or password")
     access_token = auth.create_access_token(user_id=db_user.id)
@@ -51,8 +39,8 @@ def login(session: DBSession, creds: LoginSchema):
 
 
 @router.get('/refresh')
-def refresh(session: DBSession, payload: Annotated[dict, Depends(auth.require_refresh_token)]):
-    db_user = session.query(User).filter_by(id=payload.get('sub')).first()
+def refresh(user_repo: UserRepositoryDependency, payload: Annotated[dict, Depends(auth.require_refresh_token)]):
+    db_user = user_repo.get_by_id(user_id=payload.get('sub'))
     if not db_user:
         raise HTTPException(status_code=400, detail='Bad token. Unable to recognize owner')
     new_access_token = auth.create_access_token(user_id=payload.get('sub'))
@@ -65,9 +53,9 @@ def refresh(session: DBSession, payload: Annotated[dict, Depends(auth.require_re
 
 
 @router.get('/protected')
-def protected(session: DBSession, payload: Annotated[dict, Depends(auth.require_access_token)]):
+def protected(user_repo: UserRepositoryDependency, payload: Annotated[dict, Depends(auth.require_access_token)]):
     try:
-        db_user = session.query(User).filter_by(id=payload.get('sub')).first()
+        db_user = user_repo.get_by_id(user_id=payload.get('sub'))
         return {"message": f'Hello {db_user.username}!'}
     except Exception as e:
         raise HTTPException(401, detail={"message": str(e)}) from e
