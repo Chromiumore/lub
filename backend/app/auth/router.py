@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Depends
 
-from ..repositories.user_repository import UserRepositoryDependency
+from ..repositories.users_repository import UserRepositoryDependency
 from ..config import Config
 from .schemas import LoginSchema, RegisterSchema
 from .service import AuthService, AuthConfig
