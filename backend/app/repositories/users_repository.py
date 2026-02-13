@@ -11,13 +11,13 @@ class UsersRepositroy:
     def __init__(self, session: DBSession):
         self._session = session
 
-    def get_by_id(self, user_id: int):
+    def get_by_id(self, user_id: int) -> User:
         return self._session.query(User).filter_by(id=user_id).first()
 
     def get_by_email_and_password(self, email: str, password: str) -> User:
         return self._session.query(User).filter_by(email=email, password_hash=sha256(password.encode('utf-8')).hexdigest()).first()
     
-    def add(self, creds: RegisterSchema):
+    def add(self, creds: RegisterSchema) -> User:
         email = creds.email
         username = creds.username
         password = creds.password.get_secret_value()
