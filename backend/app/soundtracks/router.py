@@ -6,7 +6,7 @@ from fastapi import UploadFile, File, APIRouter, Body, Depends
 from fastapi.responses import FileResponse
 
 from ..database import DBSession
-from ..repositories.soundtracks_repositroy import SoundtracksRepository
+from ..repositories.soundtracks_repository import SoundtracksRepository
 from .schemas import SoundtrackSchema, SoundtrackResponse
 from ..models import File as FileDB
 from ..config import Config
