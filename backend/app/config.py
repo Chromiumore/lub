@@ -13,14 +13,13 @@ class DatabaseConfig(ConfigBase):
     model_config = SettingsConfigDict(env_prefix='db_', case_sensitive=False)
 
     host: str
-    port: str
     name: str
     user: str
     password: SecretStr
 
     def get_db_url(self):
         return (f'postgresql+psycopg2://'
-                f'{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}')
+                f'{self.user}:{self.password.get_secret_value()}@{self.host}:5432/{self.name}')
 
 
 class FileStorageConfig(ConfigBase):
