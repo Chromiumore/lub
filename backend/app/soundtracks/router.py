@@ -26,7 +26,7 @@ async def create(
     db_file = FileDB(
         storage_filename=f'{uuid4()}.{ext}',
         original_filename=file.filename,
-        soundtrack_id=track.id,
+        soundtrack_id=db_track.id,
         file_type='sound',
     )
     session.add(db_file)
