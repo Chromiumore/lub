@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 
 from ..database import DBSession
 from ..repositories.soundtracks_repository import SoundtracksRepository
+from ..repositories.files_repository import FilesRepositoryDependency
 from .schemas import SoundtrackSchema, SoundtrackResponse, UpdateSoundtrackSchema
 from ..models import File as FileDB
 from ..config import Config
@@ -15,22 +16,14 @@ router = APIRouter()
 
 @router.post('/music/', status_code=201)
 async def create(
-    session: DBSession,
     track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)],
+    files_repo: FilesRepositoryDependency,
     file: UploadFile = File(...),
     track: SoundtrackSchema = Body(...),
 ):
     db_track = track_repo.add(track=track)
 
-    _, ext = os.path.splitext(file.filename)
-    db_file = FileDB(
-        storage_filename=f'{uuid4()}.{ext}',
-        original_filename=file.filename,
-        soundtrack_id=db_track.id,
-        file_type='sound',
-    )
-    session.add(db_file)
-    session.commit()
+    db_file = files_repo.add(track_id=db_track.id, file=file)
 
     with open(f'{Config.load().files.path}/{db_file.storage_filename}', 'wb') as out_file:
         content = await file.read()
