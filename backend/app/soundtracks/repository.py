@@ -4,7 +4,7 @@ from sqlalchemy.orm import selectinload
 
 from ..models import Soundtrack
 from ..database import DBSession
-from ..soundtracks.schemas import SoundtrackSchema, UpdateSoundtrackSchema
+from .schemas import SoundtrackSchema, UpdateSoundtrackSchema
 
 class SoundtracksRepository:
     def __init__(self, session: DBSession):

@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from ..auth.schemas import RegisterSchema
+from .schemas import RegisterSchema
 from ..models import User
 from ..database import DBSession
 
