@@ -4,7 +4,7 @@ from sqlalchemy.orm import selectinload
 
 from ..models import Soundtrack
 from ..database import DBSession
-from ..soundtracks.schemas import SoundtrackSchema
+from ..soundtracks.schemas import SoundtrackSchema, UpdateSoundtrackSchema
 
 class SoundtracksRepository:
     def __init__(self, session: DBSession):
@@ -31,7 +31,7 @@ class SoundtracksRepository:
 
         return track
     
-    def update(self, track_id: int, track: SoundtrackSchema) -> Soundtrack:
+    def update(self, track_id: int, track: UpdateSoundtrackSchema) -> Soundtrack:
         db_track = self._session.query(Soundtrack).options(selectinload(Soundtrack.author)).filter_by(id=track_id).first()
         for key, value in track.model_dump().items():
             setattr(db_track, key, value)

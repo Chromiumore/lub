@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse
 
 from ..database import DBSession
 from ..repositories.soundtracks_repository import SoundtracksRepository
-from .schemas import SoundtrackSchema, SoundtrackResponse
+from .schemas import SoundtrackSchema, SoundtrackResponse, UpdateSoundtrackSchema
 from ..models import File as FileDB
 from ..config import Config
 
@@ -60,7 +60,7 @@ def get_all(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepo
 
 
 @router.put('/music/{track_id}', response_model=SoundtrackResponse)
-def update(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int, track: SoundtrackSchema):
+def update(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int, track: UpdateSoundtrackSchema):
     db_track = track_repo.update(track_id=track_id, track=track)
     return db_track
 
