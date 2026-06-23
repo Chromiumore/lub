@@ -17,6 +17,7 @@ class Soundtrack(Base):
     name: Mapped[str] = mapped_column(String)
     author_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     author: Mapped['User'] = relationship(back_populates='soundtracks')
+    file: Mapped['File'] = relationship(back_populates='soundtrack')
     track_length: Mapped[int] = mapped_column(Integer)
     listens: Mapped[int] = mapped_column(Integer)
 
@@ -41,4 +42,5 @@ class File(Base):
     storage_filename: Mapped[str] = mapped_column(String, unique=True)
     original_filename: Mapped[str] = mapped_column(String)
     soundtrack_id: Mapped[int] = mapped_column(ForeignKey('soundtracks.id', ondelete='cascade'))
+    soundtrack: Mapped[Soundtrack] = relationship(back_populates='file')
     file_type: Mapped[str] = mapped_column(pgEnum(FileType))
