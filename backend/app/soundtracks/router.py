@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 
 from ..database import DBSession
 from .repository import SoundtracksRepository
-from ..files.repository import FilesRepositoryDependency
+from ..files.service import FilesServiceDependency
 from .schemas import SoundtrackSchema, SoundtrackResponse, UpdateSoundtrackSchema
 from ..models import File as FileDB
 from ..config import Config
@@ -16,33 +16,26 @@ router = APIRouter()
 @router.post('/music/', status_code=201)
 async def create(
     track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)],
-    files_repo: FilesRepositoryDependency,
+    files_service: FilesServiceDependency,
     file: UploadFile = File(...),
     track: SoundtrackSchema = Body(...),
 ):
     db_track = track_repo.add(track=track)
 
-    db_file = files_repo.add(track_id=db_track.id, file=file)
-
-    with open(f'{Config.load().files.path}/{db_file.storage_filename}', 'wb') as out_file:
-        content = await file.read()
-        out_file.write(content)
+    db_file = files_service.upload_file(file=file, track=db_track)
 
     return db_track.id
 
 
 @router.get('/music/{track_id}', response_model=SoundtrackResponse)
 def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
-    db_track = track_repo.get_by_id(track_id=track_id)
+    db_track = track_repo.get_by_id(track_id)
     return db_track
 
 
 @router.get('/music/{track_id}/file')
-def download_file(session: DBSession, track_id: int):
-    db_file = session.query(FileDB).filter_by(soundtrack_id=track_id).first()
-    filename = db_file.storage_filename
-    
-    return FileResponse(f'{Config.load().files.path}/{filename}')
+def download_file(files_service: FilesServiceDependency, track_id: int):
+    return files_service.download_file(track_id)
 
 
 @router.get('/music', response_model=list[SoundtrackResponse])
@@ -58,25 +51,12 @@ def update(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepos
 
 
 @router.put('/music/{track_id}/file')
-async def update_file(session: DBSession, track_id: int, file: UploadFile):
-    db_file = session.query(FileDB).filter_by(soundtrack_id=track_id).first()
-
-    _, ext = os.path.splitext(file.filename)
-
-    db_file.original_filename=file.filename
-
-    session.commit()
-
-    with open(f'{Config.load().files.path}/{db_file.storage_filename}', 'wb') as out_file:
-        content = await file.read()
-        out_file.write(content)
+async def update_file(files_service: FilesServiceDependency, track_id: int, file: UploadFile):
+    files_service.update_file(track_id=track_id, file=file)
 
 
 @router.delete('/music/{track_id}/')
-def delete(session: DBSession, track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
-    db_file = session.query(FileDB).filter_by(soundtrack_id=track_id).first()
-    filename = db_file.storage_filename
+def delete(files_service: FilesServiceDependency, track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
+    files_service.delete_file_from_storage(track_id)
 
     track_repo.delete(track_id=track_id)
-
-    os.remove(f'{Config.load().files.path}/{filename}')
