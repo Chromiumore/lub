@@ -1,5 +1,4 @@
 import os
-from uuid import uuid4
 from typing import Annotated
 
 from fastapi import UploadFile, File, APIRouter, Body, Depends
