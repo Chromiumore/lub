@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List
 
 from sqlalchemy import Integer, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -15,7 +16,7 @@ class Soundtrack(Base):
 
     name: Mapped[str] = mapped_column(String)
     author_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    author: Mapped['User'] = relationship()
+    author: Mapped['User'] = relationship(back_populates='soundtracks')
     track_length: Mapped[int] = mapped_column(Integer)
     listens: Mapped[int] = mapped_column(Integer)
 
@@ -26,6 +27,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(String, unique=True)
     password_hash: Mapped[str] = mapped_column(String(256))
     email: Mapped[str] = mapped_column(String, unique=True)
+    soundtracks: Mapped[List[Soundtrack]] = relationship(back_populates='author')
 
 
 class FileType(Enum):
