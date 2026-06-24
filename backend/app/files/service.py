@@ -1,42 +1,37 @@
-import os
 from typing import Annotated
 
-from fastapi import Depends, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import Depends, UploadFile, Response
 
 from ..files.repository import FilesRepositoryDependency
-from ..models import File, Soundtrack
-from..config import Config
+from .storage import FileStorageDependency
+from ..models import File as DBFile, Soundtrack
 
 class FilesService:
-    def __init__(self, files_repo: FilesRepositoryDependency):
+    def __init__(self, files_repo: FilesRepositoryDependency, file_storage: FileStorageDependency):
         self._files_repo = files_repo
+        self._file_storage = file_storage
 
-
-    async def upload_file(self, file: UploadFile, track: Soundtrack) -> File:
+    def upload_file(self, file: UploadFile, track: Soundtrack) -> DBFile:
         db_file = self._files_repo.add(track_id=track.id, file=file)
 
-        with open(f'{Config.load().files.path}/{db_file.storage_filename}', 'wb') as out_file:
-            content = await file.read()
-            out_file.write(content)
+        self._file_storage.upload(db_file.storage_filename, file)
 
         return db_file
     
-    def download_file(self, track_id: int) -> FileResponse:
+    def download_file(self, track_id: int):
         db_file = self._files_repo.get_by_track_id(track_id=track_id)
         filename = db_file.storage_filename
-        
-        return FileResponse(f'{Config.load().files.path}/{filename}')
+        response = self._file_storage.download(filename)
+
+        return response, db_file.original_filename
     
-    async def update_file(self, track_id: int, file: UploadFile) -> None:
+    def update_file(self, track_id: int, file: UploadFile) -> None:
         db_file = self._files_repo.update(track_id=track_id, file=file)
 
-        with open(f'{Config.load().files.path}/{db_file.storage_filename}', 'wb') as out_file:
-            content = await file.read()
-            out_file.write(content)
+        self._file_storage.upload(db_file.storage_filename, file)
 
     def delete_file_from_storage(self, track_id: int) -> None:
         filename = self._files_repo.get_by_track_id(track_id).storage_filename
-        os.remove(f'{Config.load().files.path}/{filename}')
+        self._file_storage.delete(filename)
 
 FilesServiceDependency = Annotated[FilesService, Depends(FilesService)]

@@ -22,10 +22,12 @@ class DatabaseConfig(ConfigBase):
                 f'{self.user}:{self.password.get_secret_value()}@{self.host}:5432/{self.name}')
 
 
-class FileStorageConfig(ConfigBase):
-    model_config = SettingsConfigDict(env_prefix='files_', case_sensitive=False)
+class S3Config(ConfigBase):
+    model_config = SettingsConfigDict(env_prefix='s3_', case_sensitive=False)
 
-    path: str
+    endpoint: str
+    user: str
+    password: SecretStr
 
 
 class AuthConfig(ConfigBase):
@@ -36,7 +38,7 @@ class AuthConfig(ConfigBase):
 
 class Config(BaseSettings):
     db: DatabaseConfig = Field(default_factory=DatabaseConfig)
-    files: FileStorageConfig = Field(default_factory=FileStorageConfig)
+    s3: S3Config = Field(default_factory=S3Config)
     auth: AuthConfig = Field(default_factory=AuthConfig)
 
     @classmethod

@@ -1,15 +1,11 @@
-import os
 from typing import Annotated
 
 from fastapi import UploadFile, File, APIRouter, Body, Depends
-from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
 
-from ..database import DBSession
 from .repository import SoundtracksRepository
 from ..files.service import FilesServiceDependency
 from .schemas import SoundtrackSchema, SoundtrackResponse, UpdateSoundtrackSchema
-from ..models import File as FileDB
-from ..config import Config
 
 router = APIRouter()
 
@@ -35,7 +31,12 @@ def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksReposito
 
 @router.get('/music/{track_id}/file')
 def download_file(files_service: FilesServiceDependency, track_id: int):
-    return files_service.download_file(track_id)
+    response, name = files_service.download_file(track_id)
+    return StreamingResponse(
+            content=response,
+            media_type='application/octet-stream',
+            headers={'Content-Disposition': f'attachment; filename="{name}"'}
+        )
 
 
 @router.get('/music', response_model=list[SoundtrackResponse])
