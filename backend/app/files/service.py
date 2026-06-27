@@ -4,34 +4,54 @@ from fastapi import Depends, UploadFile, Response
 
 from ..files.repository import FilesRepositoryDependency
 from .storage import FileStorageDependency
-from ..models import File as DBFile, Soundtrack
+from ..models import File as DBFile, Soundtrack, FileType
 
 class FilesService:
     def __init__(self, files_repo: FilesRepositoryDependency, file_storage: FileStorageDependency):
         self._files_repo = files_repo
         self._file_storage = file_storage
 
-    def upload_file(self, file: UploadFile, track: Soundtrack) -> DBFile:
-        db_file = self._files_repo.add(track_id=track.id, file=file)
+    def _upload(self, file: UploadFile, track: Soundtrack, file_type: FileType) -> DBFile:
+        db_file = self._files_repo.add(track_id=track.id, file=file, file_type=file_type)
 
         self._file_storage.upload(db_file.storage_filename, file)
 
         return db_file
     
-    def download_file(self, track_id: int):
-        db_file = self._files_repo.get_by_track_id(track_id=track_id)
+    def _download(self, track_id: int, file_type: FileType):
+        db_file = self._files_repo.get_by_track_id(track_id=track_id, file_type=file_type)
         filename = db_file.storage_filename
         response = self._file_storage.download(filename)
 
         return response, db_file.original_filename
     
-    def update_file(self, track_id: int, file: UploadFile) -> None:
-        db_file = self._files_repo.update(track_id=track_id, file=file)
+    def _update(self, track_id: int, file: UploadFile, file_type: FileType) -> None:
+        db_file = self._files_repo.update(track_id=track_id, file=file, file_type=file_type)
 
         self._file_storage.upload(db_file.storage_filename, file)
 
+    def upload_track_file(self, file: UploadFile, track: Soundtrack) -> DBFile:
+        return self._upload(file, track, FileType.sound)
+    
+    def upload_cover(self, cover: UploadFile, track: Soundtrack) -> DBFile:
+        return self._upload(cover, track, FileType.image)
+    
+    def download_track_file(self, track_id: int):
+        return self._download(track_id, FileType.sound)
+    
+    def download_cover(self, track_id: int):
+        return self._download(track_id, FileType.image)
+    
+    def update_track_file(self, track_id: int, file: UploadFile):
+        return self._update(track_id, file, FileType.sound)
+    
+    def update_cover(self, track_id: int, file: UploadFile):
+        return self._update(track_id, file, FileType.image)
+
     def delete_file_from_storage(self, track_id: int) -> None:
-        filename = self._files_repo.get_by_track_id(track_id).storage_filename
-        self._file_storage.delete(filename)
+        sound_filename = self._files_repo.get_by_track_id(track_id, FileType.sound).storage_filename
+        cover_filename = self._files_repo.get_by_track_id(track_id, FileType.image).storage_filename
+        self._file_storage.delete(sound_filename)
+        self._file_storage.delete(cover_filename)
 
 FilesServiceDependency = Annotated[FilesService, Depends(FilesService)]

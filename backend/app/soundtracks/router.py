@@ -13,13 +13,15 @@ router = APIRouter()
 async def create(
     track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)],
     files_service: FilesServiceDependency,
-    file: UploadFile = File(...),
+    track_file: UploadFile = File(...),
+    cover_image: Annotated[UploadFile | None, File(...)] = None,
     track: SoundtrackSchema = Body(...),
 ):
     db_track = track_repo.add(track=track)
 
-    db_file = files_service.upload_file(file=file, track=db_track)
-
+    db_track_file = files_service.upload_track_file(file=track_file, track=db_track)
+    db_cover = files_service.upload_cover(cover=cover_image, track=db_track)
+    
     return db_track.id
 
 
@@ -31,7 +33,17 @@ def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksReposito
 
 @router.get('/music/{track_id}/file')
 def download_file(files_service: FilesServiceDependency, track_id: int):
-    response, name = files_service.download_file(track_id)
+    response, name = files_service.download_track_file(track_id)
+    return StreamingResponse(
+            content=response,
+            media_type='application/octet-stream',
+            headers={'Content-Disposition': f'attachment; filename="{name}"'}
+        )
+
+
+@router.get('/music/{track_id}/cover')
+def download_cover(files_service: FilesServiceDependency, track_id: int):
+    response, name = files_service.download_cover(track_id)
     return StreamingResponse(
             content=response,
             media_type='application/octet-stream',
@@ -53,7 +65,12 @@ def update(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepos
 
 @router.put('/music/{track_id}/file')
 async def update_file(files_service: FilesServiceDependency, track_id: int, file: UploadFile):
-    files_service.update_file(track_id=track_id, file=file)
+    files_service.update_track_file(track_id=track_id, file=file)
+
+
+@router.put('/music/{track_id}/cover')
+async def update_cover(files_service: FilesServiceDependency, track_id: int, file: UploadFile):
+    files_service.update_cover(track_id=track_id, file=file)
 
 
 @router.delete('/music/{track_id}/')
