@@ -9,7 +9,7 @@ from .schemas import SoundtrackSchema, SoundtrackResponse, UpdateSoundtrackSchem
 
 router = APIRouter()
 
-@router.post('/music/', status_code=201)
+@router.post('/music/', status_code=201, response_model=SoundtrackResponse)
 async def create(
     track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)],
     files_service: FilesServiceDependency,
@@ -19,10 +19,12 @@ async def create(
 ):
     db_track = track_repo.add(track=track)
 
-    db_track_file = files_service.upload_track_file(file=track_file, track=db_track)
-    db_cover = files_service.upload_cover(cover=cover_image, track=db_track)
+    files_service.upload_track_file(file=track_file, track=db_track)
+
+    if cover_image:
+        files_service.upload_cover(cover=cover_image, track=db_track)
     
-    return db_track.id
+    return db_track
 
 
 @router.get('/music/{track_id}', response_model=SoundtrackResponse)
