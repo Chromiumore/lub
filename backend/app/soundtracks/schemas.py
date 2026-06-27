@@ -7,7 +7,6 @@ class SoundtrackSchema(BaseModel):
     name: str
     author_id: int
     track_length: int
-    listens: int
 
     @model_validator(mode='before')
     @classmethod
@@ -20,7 +19,6 @@ class SoundtrackSchema(BaseModel):
 class UpdateSoundtrackSchema(BaseModel):
     name: str
     track_length: int
-    listens: int
 
     @model_validator(mode='before')
     @classmethod
@@ -43,7 +41,6 @@ class SoundtrackResponse(BaseModel):
     name: str
     author: UserResponse
     track_length: int
-    listens: int
 
     class Config:
         from_attributes = True

@@ -19,7 +19,6 @@ class Soundtrack(Base):
     author: Mapped['User'] = relationship(back_populates='soundtracks')
     file: Mapped['File'] = relationship(back_populates='soundtrack')
     track_length: Mapped[int] = mapped_column(Integer)
-    listens: Mapped[int] = mapped_column(Integer)
 
 
 class User(Base):
