@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import UploadFile, File, APIRouter, Body, Depends
+from fastapi import UploadFile, File, APIRouter, Body, Depends, Response, status
 from fastapi.responses import StreamingResponse
 
 from .repository import SoundtracksRepository
@@ -27,15 +27,23 @@ async def create(
     return db_track
 
 
-@router.get('/music/{track_id}', response_model=SoundtrackResponse)
+@router.get('/music/{track_id}', response_model=SoundtrackResponse | None)
 def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
     db_track = track_repo.get_by_id(track_id)
+    
+    if not db_track:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    
     return db_track
 
 
 @router.get('/music/{track_id}/file')
 def download_file(files_service: FilesServiceDependency, track_id: int):
-    response, name = files_service.download_track_file(track_id)
+    res = files_service.download_track_file(track_id)
+    if not res:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+    response, name = res
     return StreamingResponse(
             content=response,
             media_type='application/octet-stream',
@@ -45,7 +53,11 @@ def download_file(files_service: FilesServiceDependency, track_id: int):
 
 @router.get('/music/{track_id}/cover')
 def download_cover(files_service: FilesServiceDependency, track_id: int):
-    response, name = files_service.download_cover(track_id)
+    res = files_service.download_cover(track_id)
+    if not res:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    
+    response, name = res
     return StreamingResponse(
             content=response,
             media_type='application/octet-stream',
@@ -59,24 +71,33 @@ def get_all(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepo
     return db_tracks
 
 
-@router.put('/music/{track_id}', response_model=SoundtrackResponse)
+@router.put('/music/{track_id}', response_model=SoundtrackResponse | None)
 def update(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int, track: UpdateSoundtrackSchema):
     db_track = track_repo.update(track_id=track_id, track=track)
+    if not db_track:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    
     return db_track
 
 
 @router.put('/music/{track_id}/file')
 async def update_file(files_service: FilesServiceDependency, track_id: int, file: UploadFile):
-    files_service.update_track_file(track_id=track_id, file=file)
+    if not files_service.update_track_file(track_id=track_id, file=file):
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
 @router.put('/music/{track_id}/cover')
 async def update_cover(files_service: FilesServiceDependency, track_id: int, file: UploadFile):
-    files_service.update_cover(track_id=track_id, file=file)
+    if not files_service.update_cover(track_id=track_id, file=file):
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
 @router.delete('/music/{track_id}/')
 def delete(files_service: FilesServiceDependency, track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
+    track = track_repo.get_by_id(track_id)
+    if not track:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+
     files_service.delete_file_from_storage(track_id)
 
     track_repo.delete(track_id=track_id)

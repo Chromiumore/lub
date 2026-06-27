@@ -25,11 +25,13 @@ class FilesRepository:
         
         return db_file
     
-    def get_by_track_id(self, track_id: int, file_type: FileType) -> File:
+    def get_by_track_id(self, track_id: int, file_type: FileType) -> File | None:
         return self._session.query(File).filter_by(soundtrack_id=track_id, file_type=file_type.value).first()
     
-    def update(self, track_id: int, file: UploadFile, file_type: FileType) -> File:
+    def update(self, track_id: int, file: UploadFile, file_type: FileType) -> File | None:
         db_file = self._session.query(File).filter_by(soundtrack_id=track_id, file_type=file_type.value).first()
+        if not db_file:
+            return None
 
         db_file.original_filename=file.filename
 

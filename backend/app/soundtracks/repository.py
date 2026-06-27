@@ -32,6 +32,9 @@ class SoundtracksRepository:
     
     def update(self, track_id: int, track: UpdateSoundtrackSchema) -> Soundtrack:
         db_track = self._session.query(Soundtrack).options(selectinload(Soundtrack.author)).filter_by(id=track_id).first()
+        if not db_track:
+            return None
+        
         for key, value in track.model_dump().items():
             setattr(db_track, key, value)
         self._session.commit()

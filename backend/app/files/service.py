@@ -20,6 +20,10 @@ class FilesService:
     
     def _download(self, track_id: int, file_type: FileType):
         db_file = self._files_repo.get_by_track_id(track_id=track_id, file_type=file_type)
+
+        if not db_file:
+            return None
+        
         filename = db_file.storage_filename
         response = self._file_storage.download(filename)
 
@@ -27,8 +31,11 @@ class FilesService:
     
     def _update(self, track_id: int, file: UploadFile, file_type: FileType) -> None:
         db_file = self._files_repo.update(track_id=track_id, file=file, file_type=file_type)
+        if not db_file:
+            return None
 
         self._file_storage.upload(db_file.storage_filename, file)
+        return db_file
 
     def upload_track_file(self, file: UploadFile, track: Soundtrack) -> DBFile:
         return self._upload(file, track, FileType.sound)
@@ -49,9 +56,10 @@ class FilesService:
         return self._update(track_id, file, FileType.image)
 
     def delete_file_from_storage(self, track_id: int) -> None:
-        sound_filename = self._files_repo.get_by_track_id(track_id, FileType.sound).storage_filename
-        cover_filename = self._files_repo.get_by_track_id(track_id, FileType.image).storage_filename
-        self._file_storage.delete(sound_filename)
-        self._file_storage.delete(cover_filename)
+        sound = self._files_repo.get_by_track_id(track_id, FileType.sound)
+        cover = self._files_repo.get_by_track_id(track_id, FileType.image)
+        self._file_storage.delete(sound.storage_filename)
+        if cover:
+            self._file_storage.delete(cover.storage_filename)
 
 FilesServiceDependency = Annotated[FilesService, Depends(FilesService)]
