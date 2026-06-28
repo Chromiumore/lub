@@ -45,20 +45,20 @@ class FilesService:
         self._file_storage.upload(db_file.storage_filename, file)
         return db_file
 
-    async def upload_track_file(self, file: UploadFile, track: Soundtrack) -> DBFile:
+    async def upload_audio(self, file: UploadFile, track: Soundtrack) -> DBFile:
         duration = await self.get_audio_duration_in_seconds(file)
         return self._upload(file, track, FileType.sound, duration)
     
     def upload_cover(self, cover: UploadFile, track: Soundtrack) -> DBFile:
         return self._upload(cover, track, FileType.image)
     
-    def download_track_file(self, track_id: int):
+    def download_audio(self, track_id: int):
         return self._download(track_id, FileType.sound)
     
     def download_cover(self, track_id: int):
         return self._download(track_id, FileType.image)
     
-    async def update_track_file(self, track_id: int, file: UploadFile):
+    async def update_audio(self, track_id: int, file: UploadFile):
         duration = await self.get_audio_duration_in_seconds(file)
         return self._update(track_id, file, FileType.sound, duration)
     

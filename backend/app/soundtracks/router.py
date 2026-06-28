@@ -22,11 +22,11 @@ ALLOWED_IMAGE_TYPES = {
 async def create(
     track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)],
     files_service: FilesServiceDependency,
-    track_file: UploadFile = File(...),
+    audio_file: UploadFile = File(...),
     cover_image: Annotated[UploadFile | None, File(...)] = None,
     track: SoundtrackSchema = Body(),
 ):
-    if track_file.content_type not in ALLOWED_AUDIO_TYPES:
+    if audio_file.content_type not in ALLOWED_AUDIO_TYPES:
         raise HTTPException(status_code=400, detail='Unsupported audio format')
     
     if cover_image and cover_image.content_type not in ALLOWED_IMAGE_TYPES:
@@ -34,7 +34,7 @@ async def create(
 
     db_track = track_repo.add(track=track)
 
-    await files_service.upload_track_file(file=track_file, track=db_track)
+    await files_service.upload_audio(file=audio_file, track=db_track)
 
     if cover_image:
         files_service.upload_cover(cover=cover_image, track=db_track)
@@ -53,8 +53,8 @@ def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksReposito
 
 
 @router.get('/music/{track_id}/file')
-def download_file(files_service: FilesServiceDependency, track_id: int):
-    res = files_service.download_track_file(track_id)
+def download_audio(files_service: FilesServiceDependency, track_id: int):
+    res = files_service.download_audio(track_id)
     if not res:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -96,11 +96,11 @@ def update(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepos
 
 
 @router.put('/music/{track_id}/file')
-async def update_file(files_service: FilesServiceDependency, track_id: int, file: UploadFile):
+async def update_audio(files_service: FilesServiceDependency, track_id: int, file: UploadFile):
     if file.content_type not in ALLOWED_AUDIO_TYPES:
         raise HTTPException(status_code=400, detail='Unsupported audio format')
     
-    if not await files_service.update_track_file(track_id=track_id, file=file):
+    if not await files_service.update_audio(track_id=track_id, file=file):
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
