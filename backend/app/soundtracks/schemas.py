@@ -1,12 +1,12 @@
 import json
-from pydantic import BaseModel, SecretStr, EmailStr, model_validator
+from typing import Optional, List
+
+from pydantic import BaseModel, model_validator
 
 
 class SoundtrackSchema(BaseModel):
     name: str
     author_id: int
-    track_length: int
-    listens: int
 
     @model_validator(mode='before')
     @classmethod
@@ -16,15 +16,15 @@ class SoundtrackSchema(BaseModel):
         return value
 
 
-class RegisterSchema(BaseModel):
-    username: str
-    password: SecretStr
-    email: EmailStr
+class UpdateSoundtrackSchema(BaseModel):
+    name: str
 
-
-class LoginSchema(BaseModel):
-    email: EmailStr
-    password: SecretStr
+    @model_validator(mode='before')
+    @classmethod
+    def validate_to_json(cls, value):
+        if isinstance(value, str):
+            return cls(**json.loads(value))
+        return value
 
 
 class UserResponse(BaseModel):
@@ -35,12 +35,19 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 
+class FileMetaResponse(BaseModel):
+    duration: Optional[int] = None
+    file_type: str
+
+    class Config:
+        from_attributes = True
+
+
 class SoundtrackResponse(BaseModel):
     id: int
     name: str
     author: UserResponse
-    track_length: int
-    listens: int
+    files: List[FileMetaResponse]
 
     class Config:
         from_attributes = True

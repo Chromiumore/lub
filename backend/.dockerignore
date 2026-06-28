@@ -1,0 +1,21 @@
+# Version Control
+.git
+.gitignore
+
+# Python Build Caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build Outputs & IDEs
+.idea/
+.vscode/
+
+# Logs and OS files
+*.log
+
+# Secrets and Deployment Environments
+.env
+.env.local
+.env.*.local
