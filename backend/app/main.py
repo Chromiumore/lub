@@ -1,7 +1,4 @@
-import os
-
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 
 from app.auth.router import router as auth_router
 from app.files.storage import FileStorage

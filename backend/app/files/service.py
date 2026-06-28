@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, UploadFile, Response
+from fastapi import Depends, UploadFile
 
 from app.files.repository import FilesRepositoryDependency
 from app.files.storage import FileStorageDependency
