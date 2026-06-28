@@ -24,7 +24,7 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
     }
     
     void _init() async {
-      await _playerService.load('http://localhost:8000/music/${widget.track.id}/file');
+      await _playerService.load('http://localhost:8000/api/v1/music/${widget.track.id}/file');
     }
 
   @override

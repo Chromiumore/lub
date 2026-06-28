@@ -6,20 +6,16 @@ import '../../../../shared/models/user.dart';
 class TrackResponse implements ResponseModel {
   final int id;
   final String name;
-  final int trackLength;
   final User author;
-  final int listens;
 
-  TrackResponse({required this.id, required this.name, required this.trackLength, required this.author, required this.listens});
+  TrackResponse({required this.id, required this.name, required this.author});
 
   @override
   factory TrackResponse.fromMap(Map<String, dynamic> json) {
     return TrackResponse(
       id: json['id'] as int,
       name: json['name'] as String,
-      trackLength: json['track_length'] as int,
       author: User.fromJson(json['author'] as Map<String, dynamic>),
-      listens: json['listens'] as int,
     );
   }
 
@@ -28,14 +24,12 @@ class TrackResponse implements ResponseModel {
     return TrackResponse(
       id: track.id!,
       name: track.name!,
-      trackLength: track.trackLength!,
-      author: track.author!,
-      listens: track.listens!
+      author: track.author!
     );
   }
 
   @override
   Track toEntity() {
-    return Track(id: id, name: name, trackLength: trackLength, author: author, listens: listens);
+    return Track(id: id, name: name, author: author);
   }
 }

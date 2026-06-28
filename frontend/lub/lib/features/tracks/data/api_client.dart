@@ -33,13 +33,22 @@ class ApiClient {
   }
 
   Future<void> postTracks(CreateTrackRequest trackModel, String path) async {
-    FormData formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(
-        path,
-        filename: path.split('/').last,
-      ),
-      'track': jsonEncode(trackModel.toMap()),
-    });
-    await _dio.post('/music/', data: formData);
+    try {
+      FormData formData = FormData.fromMap({
+        'audio_file': await MultipartFile.fromFile(
+          path,
+          filename: path.split('/').last,
+        ),
+        'track': jsonEncode(trackModel.toMap()),
+      });
+      await _dio.post('/music/', data: formData);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print('Status Code: ${e.response?.statusCode}');
+        print('Response Data: ${e.response?.data}');
+        print('Response Headers: ${e.response?.headers}');
+      }
+      rethrow;
+    }
   }
 }
