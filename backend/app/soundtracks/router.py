@@ -31,6 +31,8 @@ async def create(
     
     if cover_image and cover_image.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail='Unsupported image format')
+    
+    audio_duation = files_service.get_audio_duration_in_seconds(track_file)
 
     db_track = track_repo.add(track=track)
 

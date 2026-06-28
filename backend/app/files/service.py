@@ -1,6 +1,9 @@
+import io
 from typing import Annotated
 
-from fastapi import Depends, UploadFile
+from fastapi import Depends, UploadFile, HTTPException
+from mutagen import MutagenError
+from mutagen.mp3 import MP3
 
 from app.files.repository import FilesRepositoryDependency
 from app.files.storage import FileStorageDependency
@@ -66,5 +69,19 @@ class FilesService:
         self._file_storage.delete(sound.storage_filename)
         if cover:
             self._file_storage.delete(cover.storage_filename)
+
+    async def get_audio_duration_in_seconds(self, file: UploadFile):
+        file_bytes = await file.read()
+        file_buffer = io.BytesIO(file_bytes)
+
+        try:
+            if file.filename.lower().endswith(".mp3"):
+                audio = MP3(file_buffer)
+                return audio.info.length
+            else:
+                raise HTTPException(status_code=400, detail="Unsupported or invalid audio format")
+        except MutagenError:
+            raise HTTPException(status_code=400, detail="Could not parse audio metadata")
+
 
 FilesServiceDependency = Annotated[FilesService, Depends(FilesService)]
