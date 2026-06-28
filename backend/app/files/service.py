@@ -74,6 +74,7 @@ class FilesService:
 
     async def get_audio_duration_in_seconds(self, file: UploadFile):
         file_bytes = await file.read()
+        file.file.seek(0)
         file_buffer = io.BytesIO(file_bytes)
 
         try:
