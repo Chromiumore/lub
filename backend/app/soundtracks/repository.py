@@ -22,7 +22,6 @@ class SoundtracksRepository:
         track = Soundtrack(
             name=track.name,
             author_id=track.author_id,
-            track_length=track.track_length,
         )
         self._session.add(track)
         self._session.commit()

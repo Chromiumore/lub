@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import Integer, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -17,8 +17,7 @@ class Soundtrack(Base):
     name: Mapped[str] = mapped_column(String)
     author_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     author: Mapped['User'] = relationship(back_populates='soundtracks')
-    file: Mapped['File'] = relationship(back_populates='soundtrack')
-    track_length: Mapped[int] = mapped_column(Integer)
+    files: Mapped[List['File']] = relationship(back_populates='soundtrack')
 
 
 class User(Base):
@@ -41,5 +40,6 @@ class File(Base):
     storage_filename: Mapped[str] = mapped_column(String, unique=True)
     original_filename: Mapped[str] = mapped_column(String)
     soundtrack_id: Mapped[int] = mapped_column(ForeignKey('soundtracks.id', ondelete='cascade'))
-    soundtrack: Mapped[Soundtrack] = relationship(back_populates='file')
+    soundtrack: Mapped[Soundtrack] = relationship(back_populates='files')
     file_type: Mapped[str] = mapped_column(pgEnum(FileType))
+    duration: Mapped[Optional[int]] = mapped_column(Integer)

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import UploadFile, File, APIRouter, Body, Depends, Response, status, HTTPException
+from fastapi import UploadFile, File, APIRouter, Body, Form, Depends, Response, status, HTTPException
 from fastapi.responses import StreamingResponse
 
 from app.soundtracks.repository import SoundtracksRepository
@@ -24,19 +24,17 @@ async def create(
     files_service: FilesServiceDependency,
     track_file: UploadFile = File(...),
     cover_image: Annotated[UploadFile | None, File(...)] = None,
-    track: SoundtrackSchema = Body(...),
+    track: SoundtrackSchema = Body(),
 ):
     if track_file.content_type not in ALLOWED_AUDIO_TYPES:
         raise HTTPException(status_code=400, detail='Unsupported audio format')
     
     if cover_image and cover_image.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail='Unsupported image format')
-    
-    audio_duation = files_service.get_audio_duration_in_seconds(track_file)
 
     db_track = track_repo.add(track=track)
 
-    files_service.upload_track_file(file=track_file, track=db_track)
+    await files_service.upload_track_file(file=track_file, track=db_track)
 
     if cover_image:
         files_service.upload_cover(cover=cover_image, track=db_track)
@@ -102,7 +100,7 @@ async def update_file(files_service: FilesServiceDependency, track_id: int, file
     if file.content_type not in ALLOWED_AUDIO_TYPES:
         raise HTTPException(status_code=400, detail='Unsupported audio format')
     
-    if not files_service.update_track_file(track_id=track_id, file=file):
+    if not await files_service.update_track_file(track_id=track_id, file=file):
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
@@ -111,7 +109,7 @@ async def update_cover(files_service: FilesServiceDependency, track_id: int, fil
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail='Unsupported image format')
     
-    if not files_service.update_cover(track_id=track_id, file=file):
+    if not await files_service.update_cover(track_id=track_id, file=file):
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 

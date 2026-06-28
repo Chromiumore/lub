@@ -1,4 +1,5 @@
 import json
+from typing import Optional, List
 
 from pydantic import BaseModel, model_validator
 
@@ -6,7 +7,6 @@ from pydantic import BaseModel, model_validator
 class SoundtrackSchema(BaseModel):
     name: str
     author_id: int
-    track_length: int
 
     @model_validator(mode='before')
     @classmethod
@@ -18,7 +18,6 @@ class SoundtrackSchema(BaseModel):
 
 class UpdateSoundtrackSchema(BaseModel):
     name: str
-    track_length: int
 
     @model_validator(mode='before')
     @classmethod
@@ -36,11 +35,19 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 
+class FileMetaResponse(BaseModel):
+    duration: Optional[int] = None
+    file_type: str
+
+    class Config:
+        from_attributes = True
+
+
 class SoundtrackResponse(BaseModel):
     id: int
     name: str
     author: UserResponse
-    track_length: int
+    files: List[FileMetaResponse]
 
     class Config:
         from_attributes = True
