@@ -3,12 +3,14 @@ from typing import Annotated
 from fastapi import Depends, UploadFile, Response
 
 from ..files.repository import FilesRepositoryDependency
+from app.soundtracks.repository import SoundtracksRepository
 from .storage import FileStorageDependency
 from ..models import File as DBFile, Soundtrack, FileType
 
 class FilesService:
-    def __init__(self, files_repo: FilesRepositoryDependency, file_storage: FileStorageDependency):
+    def __init__(self, files_repo: FilesRepositoryDependency, tracks_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], file_storage: FileStorageDependency):
         self._files_repo = files_repo
+        self._tracks_repo = tracks_repo
         self._file_storage = file_storage
 
     def _upload(self, file: UploadFile, track: Soundtrack, file_type: FileType) -> DBFile:
@@ -32,7 +34,10 @@ class FilesService:
     def _update(self, track_id: int, file: UploadFile, file_type: FileType) -> None:
         db_file = self._files_repo.update(track_id=track_id, file=file, file_type=file_type)
         if not db_file:
-            return None
+            if self._tracks_repo.get_by_id(track_id):
+                db_file = self._files_repo.add(track_id=track_id, file=file, file_type=file_type)
+            else:
+                return None
 
         self._file_storage.upload(db_file.storage_filename, file)
         return db_file
