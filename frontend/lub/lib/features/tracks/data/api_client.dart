@@ -11,7 +11,7 @@ class ApiClient {
   late final Dio _dio;
 
   ApiClient() {
-    _options = BaseOptions(baseUrl: 'http://$_host:$_port');
+    _options = BaseOptions(baseUrl: 'http://$_host:$_port/api/v1');
     _dio = Dio(_options);
   }
   
