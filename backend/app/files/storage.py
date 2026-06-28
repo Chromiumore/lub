@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import UploadFile, Depends
 
-from .minio import MinioClient, get_minio_client
+from app.files.minio import MinioClient, get_minio_client
 
 BUCKET_NAME="lub-bucket"
 

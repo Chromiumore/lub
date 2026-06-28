@@ -2,9 +2,9 @@ from typing import List
 
 from sqlalchemy.orm import selectinload
 
-from ..models import Soundtrack
-from ..database import DBSession
-from .schemas import SoundtrackSchema, UpdateSoundtrackSchema
+from app.soundtracks.schemas import SoundtrackSchema, UpdateSoundtrackSchema
+from app.database import DBSession
+from app.models import Soundtrack
 
 class SoundtracksRepository:
     def __init__(self, session: DBSession):

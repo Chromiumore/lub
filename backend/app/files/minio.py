@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 from minio import Minio
 
-from ..config import Config
+from app.config import Config
 
 minio_config = Config.load().s3
 

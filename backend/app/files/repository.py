@@ -4,8 +4,8 @@ from typing import Annotated
 
 from fastapi import UploadFile, Depends
 
-from ..database import DBSession
-from ..models import File, FileType
+from app.database import DBSession
+from app.models import File, FileType
 
 class FilesRepository:
     def __init__(self, session: DBSession):

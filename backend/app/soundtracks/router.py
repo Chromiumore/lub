@@ -3,9 +3,9 @@ from typing import Annotated
 from fastapi import UploadFile, File, APIRouter, Body, Depends, Response, status
 from fastapi.responses import StreamingResponse
 
-from .repository import SoundtracksRepository
-from ..files.service import FilesServiceDependency
-from .schemas import SoundtrackSchema, SoundtrackResponse, UpdateSoundtrackSchema
+from app.soundtracks.repository import SoundtracksRepository
+from app.soundtracks.schemas import SoundtrackSchema, SoundtrackResponse, UpdateSoundtrackSchema
+from app.files.service import FilesServiceDependency
 
 router = APIRouter()
 

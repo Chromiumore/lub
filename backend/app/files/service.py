@@ -2,10 +2,10 @@ from typing import Annotated
 
 from fastapi import Depends, UploadFile, Response
 
-from ..files.repository import FilesRepositoryDependency
+from app.files.repository import FilesRepositoryDependency
+from app.files.storage import FileStorageDependency
+from app.models import File as DBFile, Soundtrack, FileType
 from app.soundtracks.repository import SoundtracksRepository
-from .storage import FileStorageDependency
-from ..models import File as DBFile, Soundtrack, FileType
 
 class FilesService:
     def __init__(self, files_repo: FilesRepositoryDependency, tracks_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], file_storage: FileStorageDependency):

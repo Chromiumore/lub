@@ -2,10 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Depends
 
-from .repository import UsersRepositoryDependency
-from ..config import Config
-from .schemas import LoginSchema, RegisterSchema
-from .service import AuthService, AuthConfig
+from app.auth.repository import UsersRepositoryDependency
+from app.auth.schemas import LoginSchema, RegisterSchema
+from app.auth.service import AuthService, AuthConfig
+from app.config import Config
     
 
 auth = AuthService()

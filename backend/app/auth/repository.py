@@ -3,9 +3,9 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from .schemas import RegisterSchema
-from ..models import User
-from ..database import DBSession
+from app.auth.schemas import RegisterSchema
+from app.database import DBSession
+from app.models import User
 
 class UsersRepositroy:
     def __init__(self, session: DBSession):
