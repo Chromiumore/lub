@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import UploadFile, File, APIRouter, Body, Depends, Response, status
+from fastapi import UploadFile, File, APIRouter, Body, Depends, Response, status, HTTPException
 from fastapi.responses import StreamingResponse
 
 from app.soundtracks.repository import SoundtracksRepository
@@ -8,6 +8,15 @@ from app.soundtracks.schemas import SoundtrackSchema, SoundtrackResponse, Update
 from app.files.service import FilesServiceDependency
 
 router = APIRouter()
+
+ALLOWED_AUDIO_TYPES = {
+    'audio/mpeg': 'mp3'
+}
+
+ALLOWED_IMAGE_TYPES = {
+    'image/jpeg',
+    'image/png',
+}
 
 @router.post('/music/', status_code=201, response_model=SoundtrackResponse)
 async def create(
@@ -17,6 +26,12 @@ async def create(
     cover_image: Annotated[UploadFile | None, File(...)] = None,
     track: SoundtrackSchema = Body(...),
 ):
+    if track_file.content_type not in ALLOWED_AUDIO_TYPES:
+        raise HTTPException(status_code=400, detail='Unsupported audio format')
+    
+    if cover_image and cover_image.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail='Unsupported image format')
+
     db_track = track_repo.add(track=track)
 
     files_service.upload_track_file(file=track_file, track=db_track)
@@ -82,12 +97,18 @@ def update(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepos
 
 @router.put('/music/{track_id}/file')
 async def update_file(files_service: FilesServiceDependency, track_id: int, file: UploadFile):
+    if file.content_type not in ALLOWED_AUDIO_TYPES:
+        raise HTTPException(status_code=400, detail='Unsupported audio format')
+    
     if not files_service.update_track_file(track_id=track_id, file=file):
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
 
 @router.put('/music/{track_id}/cover')
 async def update_cover(files_service: FilesServiceDependency, track_id: int, file: UploadFile):
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail='Unsupported image format')
+    
     if not files_service.update_cover(track_id=track_id, file=file):
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
