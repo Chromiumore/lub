@@ -62,7 +62,7 @@ class FilesService:
         duration = await self.get_audio_duration_in_seconds(file)
         return self._update(track_id, file, FileType.sound, duration)
     
-    def update_cover(self, track_id: int, file: UploadFile):
+    async def update_cover(self, track_id: int, file: UploadFile):
         return self._update(track_id, file, FileType.image)
 
     def delete_file_from_storage(self, track_id: int) -> None:
