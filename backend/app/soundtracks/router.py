@@ -1,4 +1,5 @@
 from typing import Annotated
+from urllib.parse import quote
 
 from fastapi import UploadFile, File, APIRouter, Body, Form, Depends, Response, status, HTTPException
 from fastapi.responses import StreamingResponse
@@ -62,7 +63,7 @@ def download_audio(files_service: FilesServiceDependency, track_id: int):
     return StreamingResponse(
             content=response,
             media_type='application/octet-stream',
-            headers={'Content-Disposition': f'attachment; filename="{name}"'}
+            headers={'Content-Disposition': f'attachment; filename="{quote(name)}"'}
         )
 
 
@@ -76,7 +77,7 @@ def download_cover(files_service: FilesServiceDependency, track_id: int):
     return StreamingResponse(
             content=response,
             media_type='application/octet-stream',
-            headers={'Content-Disposition': f'attachment; filename="{name}"'}
+            headers={'Content-Disposition': f'attachment; filename="{quote(name)}"'}
         )
 
 
