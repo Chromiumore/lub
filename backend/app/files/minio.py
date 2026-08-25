@@ -3,20 +3,16 @@ from typing import Annotated
 from fastapi import Depends
 from minio import Minio
 
-from app.config import Config
+from app.config import Config, get_config
 
-minio_config = Config.load().s3
-
-MINIO_ENDPOINT=minio_config.endpoint
-MINIO_ACCESS_KEY=minio_config.user
-MINIO_SECRET_KEY=minio_config.password.get_secret_value()
 MINIO_SECURE=False
 
-def get_minio_client() -> Minio:
+def get_minio_client(config: Annotated[Config, Depends(get_config)]) -> Minio:
+        minio_config = config.s3
         return Minio(
-            endpoint=MINIO_ENDPOINT,
-            access_key=MINIO_ACCESS_KEY,
-            secret_key=MINIO_SECRET_KEY,
+            endpoint=minio_config.endpoint,
+            access_key=minio_config.user,
+            secret_key=minio_config.password.get_secret_value(),
             secure=MINIO_SECURE
         )
 

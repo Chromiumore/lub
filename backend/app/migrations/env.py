@@ -7,7 +7,7 @@ from alembic import context
 
 import alembic_postgresql_enum
 
-from app.config import Config as AppConfig
+from app.config import get_config
 from app.models import Base
 
 # this is the Alembic Config object, which provides
@@ -25,7 +25,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
 
-app_config = AppConfig.load()
+app_config = get_config()
 config.set_main_option("sqlalchemy.url", app_config.db.get_db_url())
 
 # other values from the config, defined by the needs of env.py,

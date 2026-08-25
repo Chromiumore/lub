@@ -10,12 +10,11 @@ BUCKET_NAME="lub-bucket"
 class FileStorage:
     def __init__(self, client: MinioClient):
         self._client = client
+        self._init_storage()
 
-    @classmethod
-    def init_storage(cls):
-        cl = get_minio_client()
-        if not cl.bucket_exists(BUCKET_NAME):
-            cl.make_bucket(BUCKET_NAME)
+    def _init_storage(self):
+        if not self._client.bucket_exists(BUCKET_NAME):
+            self._client.make_bucket(BUCKET_NAME)
 
     def download(self, filename: str):
         return self._client.get_object(BUCKET_NAME, filename)

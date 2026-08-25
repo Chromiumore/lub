@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -41,6 +43,7 @@ class Config(BaseSettings):
     s3: S3Config = Field(default_factory=S3Config)
     auth: AuthConfig = Field(default_factory=AuthConfig)
 
-    @classmethod
-    def load(cls) -> "Config":
-        return cls()
+
+@lru_cache
+def get_config() -> Config:
+    return Config()
