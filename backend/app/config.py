@@ -3,15 +3,8 @@ from functools import lru_cache
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
-class ConfigBase(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file='.env',
-        extra='ignore',
-    )
-
-
-class DatabaseConfig(ConfigBase):
+    
+class DatabaseConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix='db_', case_sensitive=False)
 
     host: str
@@ -24,7 +17,7 @@ class DatabaseConfig(ConfigBase):
                 f'{self.user}:{self.password.get_secret_value()}@{self.host}:5432/{self.name}')
 
 
-class S3Config(ConfigBase):
+class S3Config(BaseSettings):
     model_config = SettingsConfigDict(env_prefix='s3_', case_sensitive=False)
 
     endpoint: str
@@ -32,7 +25,7 @@ class S3Config(ConfigBase):
     password: SecretStr
 
 
-class AuthConfig(ConfigBase):
+class AuthConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix='auth_', case_sensitive=False)
 
     secret_key: SecretStr
@@ -42,6 +35,11 @@ class Config(BaseSettings):
     db: DatabaseConfig = Field(default_factory=DatabaseConfig)
     s3: S3Config = Field(default_factory=S3Config)
     auth: AuthConfig = Field(default_factory=AuthConfig)
+
+    model_config = SettingsConfigDict(
+            env_file='.env',
+            extra='ignore',
+        )
 
 
 @lru_cache
