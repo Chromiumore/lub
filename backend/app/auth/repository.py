@@ -16,6 +16,12 @@ class UsersRepository:
 
     def get_by_email_and_password(self, email: str, password: str) -> User:
         return self._session.query(User).filter_by(email=email, password_hash=sha256(password.encode('utf-8')).hexdigest()).first()
+
+    def get_by_email(self, email: str) -> User:
+        return self._session.query(User).filter_by(email=email).first()
+
+    def get_by_username(self, username: str) -> User:
+        return self._session.query(User).filter_by(username=username).first()
     
     def add(self, creds: RegisterSchema) -> User:
         email = creds.email

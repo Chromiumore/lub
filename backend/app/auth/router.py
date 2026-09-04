@@ -12,6 +12,14 @@ router = APIRouter()
 
 @router.post('/register', status_code=201)
 def register(user_repo: UsersRepositoryDependency, creds: RegisterSchema):
+    user = user_repo.get_by_email(creds.email)
+    if user:
+        raise HTTPException(status_code=409, detail='A user with this email address already exists.')
+
+    user = user_repo.get_by_username(creds.username)
+    if user:
+        raise HTTPException(status_code=409, detail='A user with this username already exists.')
+
     user_repo.add(creds=creds)
 
 
