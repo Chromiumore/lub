@@ -10,10 +10,14 @@ from app.models import Base
 from app.config import Config, get_config
 from app.database import get_db
 from app.files.minio import get_minio_client
+from app.auth.repository import UsersRepository
+from app.auth.schemas import RegisterSchema
 
 
 TEST_ENV_FILE = '.env.test'
 
+
+# MAIN FIXTURES
 
 @pytest.fixture(scope='session')
 def app_config():
@@ -21,7 +25,7 @@ def app_config():
 
     return Config()
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def db_session(app_config):
     test_database_url = app_config.db.get_db_url()
     engine = create_engine(test_database_url)
@@ -45,7 +49,7 @@ def minio_client(app_config):
         secure=False
     )
 
-@pytest.fixture(scope='function')
+@pytest.fixture
 def client(db_session, app_config, minio_client):
 
     def _get_test_db():
@@ -67,3 +71,17 @@ def client(db_session, app_config, minio_client):
         yield c
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def default_user(db_session):
+    creds = RegisterSchema(
+                username='user123',
+                password='12345',
+                email='user@gmail.com'
+            )
+
+    users_repo = UsersRepository(db_session)
+    users_repo.add(creds)
+
+    return creds
