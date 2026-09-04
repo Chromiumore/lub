@@ -7,14 +7,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class DatabaseConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix='db_', case_sensitive=False)
 
-    host: str
+    endpoint: str
     name: str
     user: str
     password: SecretStr
 
     def get_db_url(self):
         return (f'postgresql+psycopg2://'
-                f'{self.user}:{self.password.get_secret_value()}@{self.host}:5432/{self.name}')
+                f'{self.user}:{self.password.get_secret_value()}@{self.endpoint}/{self.name}')
 
 
 class S3Config(BaseSettings):
