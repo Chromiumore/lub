@@ -2,9 +2,10 @@ from app.main import API_V1_PREFIX
 
 
 def test_login_success(client, default_user):
+    user_data = default_user[1]
     payload = {
-        'email': default_user.email,
-        'password': default_user.password.get_secret_value()
+        'email': user_data.email,
+        'password': user_data.password.get_secret_value()
     }
 
     response = client.post(API_V1_PREFIX + '/login', json=payload)
@@ -25,9 +26,10 @@ def test_login_not_exists(client, default_user):
     assert response.json().get('detail') == 'Incorrect email or password'
 
 def test_login_wrong_password(client, default_user):
+    user_data = default_user[1]
     payload = {
-        'email': default_user.email,
-        'password': default_user.password.get_secret_value() + '123123'
+        'email': user_data.email,
+        'password': user_data.password.get_secret_value() + '123123'
     }
 
     response = client.post(API_V1_PREFIX + '/login', json=payload)
@@ -36,15 +38,16 @@ def test_login_wrong_password(client, default_user):
     assert response.json().get('detail') == 'Incorrect email or password'
 
 def test_login_required_fields_missing(client, default_user):
+    user_data = default_user[1]
     payload = {
-            'email': default_user.email
+            'email': user_data.email
         }
     
     response = client.post(API_V1_PREFIX + '/login', json=payload)
     assert response.status_code == 422
 
     payload = {
-            'password': default_user.password.get_secret_value()
+            'password': user_data.password.get_secret_value()
         }
     response = client.post(API_V1_PREFIX + '/login', json=payload)
     assert response.status_code == 422

@@ -26,10 +26,11 @@ def test_register_success(client, db_session):
     assert created_user.password_hash == sha256(password.encode('utf-8')).hexdigest()
 
 def test_regiser_password_exists(client, default_user, db_session):
+    user_data = default_user[1]
     payload = {
-            'username': default_user.username + 'new',
-            'password': default_user.password.get_secret_value(),
-            'email': 'new_email_' + default_user.email
+            'username': user_data.username + 'new',
+            'password': user_data.password.get_secret_value(),
+            'email': 'new_email_' + user_data.email
             }
     response = client.post(API_V1_PREFIX + '/register', json=payload)
 
@@ -66,10 +67,11 @@ def test_register_no_required_fields(client):
     assert response.status_code == 422
 
 def test_register_username_already_exists(client, default_user):
+    user_data = default_user[1]
     payload = {
-            'username': default_user.username,
+            'username': user_data.username,
             'password': 'pass123',
-            'email': 'abc_' + default_user.email
+            'email': 'abc_' + user_data.email
             }
     response = client.post(API_V1_PREFIX + '/register', json=payload)
 
@@ -77,10 +79,11 @@ def test_register_username_already_exists(client, default_user):
     assert response.json().get('detail') == 'A user with this username already exists.'
 
 def test_register_email_already_exists(client, default_user):
+    user_data = default_user[1]
     payload = {
-                'username': default_user.username + 'new',
+                'username': user_data.username + 'new',
                 'password': 'pass123',
-                'email': default_user.email
+                'email': user_data.email
                 }
     response = client.post(API_V1_PREFIX + '/register', json=payload)
 

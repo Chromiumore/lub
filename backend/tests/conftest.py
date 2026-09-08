@@ -42,12 +42,14 @@ def db_session(app_config):
 @pytest.fixture
 def minio_client(app_config):
     minio_config = app_config.s3
-    return Minio(
+    minio = Minio(
         endpoint=minio_config.endpoint,
         access_key=minio_config.user,
         secret_key=minio_config.password.get_secret_value(),
         secure=False
     )
+
+    return minio
 
 @pytest.fixture
 def client(db_session, app_config, minio_client):
@@ -82,6 +84,12 @@ def default_user(db_session):
             )
 
     users_repo = UsersRepository(db_session)
-    users_repo.add(creds)
+    user = users_repo.add(creds)
 
-    return creds
+    return user.id, creds
+
+
+@pytest.fixture(scope='session')
+def empty_mp3_bytes(pytestconfig):
+    with open(pytestconfig.rootpath / 'tests' / 'fixtures' / 'silence.mp3', 'rb') as f:
+        return f.read()
