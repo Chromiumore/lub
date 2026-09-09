@@ -1,15 +1,25 @@
+import io
+
 import pytest
+import pytest_asyncio
+from fastapi import UploadFile
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from minio import Minio
+from minio.deleteobjects import DeleteObject
 from dotenv import load_dotenv
 
 from app.main import create_app
 from app.models import Base
 from app.config import Config, get_config
 from app.database import get_db
+from app.models import Soundtrack, File, FileType
+from app.soundtracks.repository import SoundtracksRepository
 from app.files.minio import get_minio_client
+from app.files.repository import FilesRepository
+from app.files.service import FilesService
+from app.files.storage import FileStorage, BUCKET_NAME
 from app.auth.repository import UsersRepository
 from app.auth.schemas import RegisterSchema
 
@@ -49,7 +59,17 @@ def minio_client(app_config):
         secure=False
     )
 
-    return minio
+    if not minio.bucket_exists(BUCKET_NAME):
+        minio.make_bucket(BUCKET_NAME)
+
+    yield minio
+
+    objects_to_delete = minio.list_objects(BUCKET_NAME, recursive=True)
+    for obj in objects_to_delete:
+        minio.remove_object(BUCKET_NAME, obj.object_name)
+    
+    minio.remove_bucket(BUCKET_NAME)
+
 
 @pytest.fixture
 def client(db_session, app_config, minio_client):
@@ -75,6 +95,31 @@ def client(db_session, app_config, minio_client):
     app.dependency_overrides.clear()
 
 
+# SERVICES AND REPOSITORIES
+
+@pytest.fixture
+def files_service(db_session, minio_client):
+    return FilesService(
+        FilesRepository(db_session),
+        SoundtracksRepository(db_session),
+        FileStorage(minio_client)
+    )
+
+
+# DTOs, ENTITIES AND TEST DATA
+
+@pytest.fixture(scope='session')
+def empty_mp3_bytes(pytestconfig):
+    filename = 'silence.mp3'
+    with open(pytestconfig.rootpath / 'tests' / 'fixtures' / filename, 'rb') as f:
+        return f.read(), filename
+
+@pytest.fixture(scope='session')
+def empty_jpeg_bytes():
+    filename = 'image.jpg'
+    return b'fake', filename
+    
+
 @pytest.fixture
 def default_user(db_session):
     creds = RegisterSchema(
@@ -89,7 +134,12 @@ def default_user(db_session):
     return user.id, creds
 
 
-@pytest.fixture(scope='session')
-def empty_mp3_bytes(pytestconfig):
-    with open(pytestconfig.rootpath / 'tests' / 'fixtures' / 'silence.mp3', 'rb') as f:
-        return f.read()
+@pytest_asyncio.fixture
+async def default_track(db_session, default_user, files_service, empty_mp3_bytes, empty_jpeg_bytes):
+    db_track = Soundtrack(name='track-1', author_id = default_user[0])
+    db_session.add(db_track)
+    db_session.commit()
+    db_session.refresh(db_track)
+    await files_service.upload_audio(UploadFile(file=io.BytesIO(empty_mp3_bytes[0]), filename=empty_mp3_bytes[1]), db_track)
+    files_service.upload_cover(UploadFile(file=io.BytesIO(empty_jpeg_bytes[0]), filename=empty_jpeg_bytes[1]), db_track)
+    yield db_track
