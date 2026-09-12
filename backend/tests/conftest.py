@@ -142,4 +142,4 @@ async def default_track(db_session, default_user, files_service, empty_mp3_bytes
     db_session.refresh(db_track)
     await files_service.upload_audio(UploadFile(file=io.BytesIO(empty_mp3_bytes[0]), filename=empty_mp3_bytes[1]), db_track)
     files_service.upload_cover(UploadFile(file=io.BytesIO(empty_jpeg_bytes[0]), filename=empty_jpeg_bytes[1]), db_track)
-    yield db_track
+    return db_track
