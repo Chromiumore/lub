@@ -42,5 +42,27 @@ def test_update_audio(client, default_track, pytestconfig, minio_client, db_sess
     db_file = db_session.query(File).filter_by(soundtrack_id=default_track.id, file_type=FileType.sound).first()
     assert db_file.original_filename == new_filename
 
-    assert minio_client.get_object(BUCKET_NAME, db_file.storage_filename).read() == content 
-    
+    assert minio_client.get_object(BUCKET_NAME, db_file.storage_filename).read() == content
+
+
+def test_update_audio_not_exists(client, default_track, db_session, minio_client, empty_mp3_bytes, pytestconfig):
+    old_content, old_filename = empty_mp3_bytes
+    new_filename = 'silence2.mp3'
+    with open(pytestconfig.rootpath / 'tests' / 'fixtures' / new_filename, 'rb') as f:
+        new_content = f.read()
+
+    audio_file = (new_filename, BytesIO(new_content), 'audio/mpeg')
+
+    response = client.put(
+        API_V1_PREFIX + f'/music/{default_track.id + 11}/file',
+        files={
+            'file': audio_file
+        }
+    )
+
+    assert response.status_code == 404
+
+    db_file = db_session.query(File).filter_by(soundtrack_id=default_track.id, file_type=FileType.sound).first()
+    assert db_file.original_filename == old_filename
+
+    assert minio_client.get_object(BUCKET_NAME, db_file.storage_filename).read() == old_content
