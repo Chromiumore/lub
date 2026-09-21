@@ -82,8 +82,8 @@ def download_cover(files_service: FilesServiceDependency, track_id: int):
 
 
 @router.get('/music', response_model=list[SoundtrackResponse])
-def get_all(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)]):
-    db_tracks = track_repo.get()
+async def get_all(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)]):
+    db_tracks = await track_repo.get()
     return db_tracks
 
 

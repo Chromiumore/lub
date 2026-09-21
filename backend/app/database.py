@@ -1,20 +1,34 @@
+from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
-from app.config import get_config, Config
+from app.config import get_config
 
-def get_db(config: Annotated[Config, Depends(get_config)]):
-    DATABASE_URL = config.db.get_db_url()
-    engine = create_engine(DATABASE_URL)
-    SessionLocal = sessionmaker(bind=engine)
-    db = SessionLocal()
-    
-    try:
-        yield db
-    finally:
-        db.close()
+@lru_cache
+def get_engine():
+    return create_async_engine(
+        get_config().db.get_db_url(),
+        echo=True,
+        pool_size=20,
+        max_overflow=40,
+        pool_pre_ping=True,
+        pool_recycle=3600,
+    )
 
-DBSession = Annotated[Session, Depends(get_db)]
+@lru_cache
+def get_session_factory():
+    return async_sessionmaker(bind=get_engine(), expire_on_commit=False, class_=AsyncSession,)
+
+async def get_db():
+    AsyncSessionLocal = get_session_factory()
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+
+DBSession = Annotated[AsyncSession, Depends(get_db)]

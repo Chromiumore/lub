@@ -13,7 +13,7 @@ class DatabaseConfig(BaseSettings):
     password: SecretStr
 
     def get_db_url(self):
-        return (f'postgresql+psycopg2://'
+        return (f'postgresql+asyncpg://'
                 f'{self.user}:{self.password.get_secret_value()}@{self.endpoint}/{self.name}')
 
 

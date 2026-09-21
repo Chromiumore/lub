@@ -1,6 +1,7 @@
 from typing import List
 
 from sqlalchemy.orm import selectinload
+from sqlalchemy import select
 
 from app.soundtracks.schemas import SoundtrackSchema, UpdateSoundtrackSchema
 from app.database import DBSession
@@ -10,12 +11,12 @@ class SoundtracksRepository:
     def __init__(self, session: DBSession):
         self._session = session
 
-    def get(self) -> List[Soundtrack]:
-        tracks = self._session.query(Soundtrack).options(selectinload(Soundtrack.author)).all()
-        return tracks
+    async def get(self) -> List[Soundtrack]:
+        tracks = await self._session.execute(select(Soundtrack).options(selectinload(Soundtrack.author), selectinload(Soundtrack.files)))
+        return tracks.scalars().all()
     
     def get_by_id(self, track_id: int) -> Soundtrack:
-        db_track = self._session.query(Soundtrack).options(selectinload(Soundtrack.author)).filter_by(id=track_id).first()
+        db_track = self._session.execute(select(Soundtrack)).options(selectinload(Soundtrack.author)).filter_by(id=track_id).first()
         return db_track
     
     def add(self, track: SoundtrackSchema) -> Soundtrack:
