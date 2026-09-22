@@ -2,8 +2,8 @@ from app.main import API_V1_PREFIX
 from app.models import FileType
 
 
-def test_get_track(client, default_track):
-    response = client.get(API_V1_PREFIX + f'/music/{default_track.id}')
+async def test_get_track(client, default_track):
+    response = await client.get(API_V1_PREFIX + f'/music/{default_track.id}')
     assert response.status_code == 200
 
     result = response.json()
@@ -14,11 +14,11 @@ def test_get_track(client, default_track):
 
     files_result = result.get('files')
     assert any(f.get('file_type') == FileType.image.value and f.get('duration') is None for f in files_result)
-    assert any(f.get('file_type') == FileType.sound.value and f.get('duration') for f in files_result)
+    assert any(f.get('file_type') == FileType.sound.value and f.get('duration') is not None for f in files_result)
 
 
-def test_get_tracks(client, default_track):
-    response = client.get(API_V1_PREFIX + '/music')
+async def test_get_tracks(client, default_track):
+    response = await client.get(API_V1_PREFIX + '/music')
     assert response.status_code == 200
 
     result = response.json()

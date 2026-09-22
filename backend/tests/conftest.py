@@ -4,10 +4,9 @@ import pytest
 import pytest_asyncio
 from fastapi import UploadFile
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from httpx import AsyncClient, ASGITransport
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from minio import Minio
-from minio.deleteobjects import DeleteObject
 from dotenv import load_dotenv
 
 from app.main import create_app
@@ -35,19 +34,25 @@ def app_config():
 
     return Config()
 
-@pytest.fixture
-def db_session(app_config):
-    test_database_url = app_config.db.get_db_url()
-    engine = create_engine(test_database_url)
-    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+@pytest_asyncio.fixture(scope='session', loop_scope='session')
+async def db_engine(app_config):
+    engine = create_async_engine(app_config.db.get_db_url())
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield engine
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    await engine.dispose()
 
-    Base.metadata.create_all(bind=engine)
-    session = TestingSessionLocal()
-    try:
+@pytest_asyncio.fixture(scope='session', loop_scope='session')
+async def db_session_factory(db_engine):
+    return async_sessionmaker(autocommit=False, autoflush=False, bind=db_engine, expire_on_commit=False, class_=AsyncSession)
+
+@pytest_asyncio.fixture(loop_scope='session')
+async def db_session(db_session_factory):
+    async with db_session_factory() as session:
         yield session
-    finally:
-        session.close()
-        Base.metadata.drop_all(bind=engine)
+        await session.rollback()
 
 @pytest.fixture
 def minio_client(app_config):
@@ -71,11 +76,12 @@ def minio_client(app_config):
     minio.remove_bucket(BUCKET_NAME)
 
 
-@pytest.fixture
-def client(db_session, app_config, minio_client):
+@pytest_asyncio.fixture
+async def client(db_session, app_config, minio_client):
 
-    def _get_test_db():
-        return db_session
+    async def _get_test_db():
+        yield db_session
+        await db_session.flush()
 
     def _get_test_config():
         return app_config
@@ -89,8 +95,9 @@ def client(db_session, app_config, minio_client):
     app.dependency_overrides[get_config] = _get_test_config
     app.dependency_overrides[get_minio_client] = _get_test_minio_client
 
-    with TestClient(app) as c:  
-        yield c
+    transport = ASGITransport(app=app)
+    async with AsyncClient(base_url='http://localhost:8000', transport=transport) as ac:
+        yield ac
 
     app.dependency_overrides.clear()
 
@@ -118,10 +125,17 @@ def empty_mp3_bytes(pytestconfig):
 def empty_jpeg_bytes():
     filename = 'image.jpg'
     return b'fake', filename
-    
 
-@pytest.fixture
-def default_user(db_session):
+@pytest.fixture(scope='session')
+def media_bytes(request, empty_mp3_bytes, empty_jpeg_bytes):
+    file_type = request.param
+    if file_type == FileType.sound:
+        return empty_mp3_bytes
+    elif file_type == FileType.image:
+        return empty_jpeg_bytes
+
+@pytest_asyncio.fixture
+async def default_user(db_session):
     creds = RegisterSchema(
                 username='user123',
                 password='12345',
@@ -129,7 +143,7 @@ def default_user(db_session):
             )
 
     users_repo = UsersRepository(db_session)
-    user = users_repo.add(creds)
+    user = await users_repo.add(creds)
 
     return user.id, creds
 
@@ -138,8 +152,9 @@ def default_user(db_session):
 async def default_track(db_session, default_user, files_service, empty_mp3_bytes, empty_jpeg_bytes):
     db_track = Soundtrack(name='track-1', author_id = default_user[0])
     db_session.add(db_track)
-    db_session.commit()
-    db_session.refresh(db_track)
+    await db_session.flush()
     await files_service.upload_audio(UploadFile(file=io.BytesIO(empty_mp3_bytes[0]), filename=empty_mp3_bytes[1]), db_track)
-    files_service.upload_cover(UploadFile(file=io.BytesIO(empty_jpeg_bytes[0]), filename=empty_jpeg_bytes[1]), db_track)
+    await files_service.upload_cover(UploadFile(file=io.BytesIO(empty_jpeg_bytes[0]), filename=empty_jpeg_bytes[1]), db_track)
+    tracks_repo = SoundtracksRepository(db_session)
+    db_track = await tracks_repo.get_by_id(db_track.id)
     return db_track

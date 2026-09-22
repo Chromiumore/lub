@@ -1,6 +1,7 @@
 from io import BytesIO
 
 import pytest
+from sqlalchemy import select
 
 from app.main import API_V1_PREFIX
 from app.models import File, FileType, Soundtrack, User
@@ -8,34 +9,34 @@ from app.files.storage import BUCKET_NAME
 
 
 @pytest.mark.parametrize(
-    'file_fixture, path_segment',
+    'media_bytes, path_segment',
     [
-        ('empty_mp3_bytes', 'file'),
-        ('empty_jpeg_bytes', 'cover')
-    ]
+        (FileType.sound, 'file'),
+        (FileType.image, 'cover')
+    ],
+    indirect=['media_bytes']
 )
-def test_donwload(request, client, default_track, file_fixture, path_segment):
-    empty_bytes = request.getfixturevalue(file_fixture)
-    file_content, filename = empty_bytes
+async def test_download(client, default_track, media_bytes, path_segment):
+    file_content, filename = media_bytes
 
-    response = client.get(API_V1_PREFIX + f'/music/{default_track.id}/{path_segment}')
+    response = await client.get(API_V1_PREFIX + f'/music/{default_track.id}/{path_segment}')
     assert response.status_code == 200
     assert response.headers['content-disposition'] == f'attachment; filename="{filename}"'
     assert response.content == file_content
 
 
 @pytest.mark.parametrize(
-    'file_fixture, path_segment',
+    'media_bytes, path_segment',
     [
-        ('empty_mp3_bytes', 'file'),
-        ('empty_jpeg_bytes', 'cover')
-    ]
+        (FileType.sound, 'file'),
+        (FileType.image, 'cover')
+    ],
+    indirect=['media_bytes']
 )
-def test_download_not_exists(request, client, default_track, file_fixture, path_segment):
-    empty_bytes = request.getfixturevalue(file_fixture)
-    file_content, filename = empty_bytes
+async def test_download_not_exists(client, default_track, media_bytes, path_segment):
+    file_content, filename = media_bytes
 
-    response = client.get(API_V1_PREFIX + f'/music/{default_track.id + 11}/file')
+    response = await client.get(API_V1_PREFIX + f'/music/{default_track.id + 11}/{path_segment}')
     assert response.status_code == 404
     assert not response.headers.get('content-disposition')
     assert not response.content
@@ -48,7 +49,7 @@ def test_download_not_exists(request, client, default_track, file_fixture, path_
         ('cover', FileType.image)
     ]
 )
-def test_update(client, default_track, pytestconfig, minio_client, db_session, path_segment, file_type):
+async def test_update(client, default_track, pytestconfig, minio_client, db_session, path_segment, file_type):
     if file_type == FileType.sound:
         new_filename = 'silence2.mp3'
         with open(pytestconfig.rootpath / 'tests' / 'fixtures' / new_filename, 'rb') as f:
@@ -59,7 +60,7 @@ def test_update(client, default_track, pytestconfig, minio_client, db_session, p
 
     file = (new_filename, BytesIO(content), 'audio/mpeg' if file_type == FileType.sound else 'image/jpeg')
 
-    response = client.put(
+    response = await client.put(
         API_V1_PREFIX + f'/music/{default_track.id}/{path_segment}',
         files={
             'file': file
@@ -68,22 +69,22 @@ def test_update(client, default_track, pytestconfig, minio_client, db_session, p
 
     assert response.status_code == 200
 
-    db_file = db_session.query(File).filter_by(soundtrack_id=default_track.id, file_type=file_type).first()
+    db_file = (await db_session.execute(select(File).filter_by(soundtrack_id=default_track.id, file_type=file_type))).scalar_one_or_none()
     assert db_file.original_filename == new_filename
 
     assert minio_client.get_object(BUCKET_NAME, db_file.storage_filename).read() == content
 
 
 @pytest.mark.parametrize(
-    'file_fixture, path_segment, file_type',
+    'media_bytes, file_type, path_segment',
     [
-        ('empty_mp3_bytes', 'file', FileType.sound),
-        ('empty_jpeg_bytes', 'cover', FileType.image)
-    ]
+        (FileType.sound, FileType.sound, 'file'),
+        (FileType.image, FileType.image, 'cover')
+    ],
+    indirect=['media_bytes']
 )
-def test_update_not_exists(request, client, default_track, db_session, minio_client, file_fixture, path_segment, file_type, pytestconfig):
-    empty_bytes = request.getfixturevalue(file_fixture)
-    old_content, old_filename = empty_bytes
+async def test_update_not_exists(client, default_track, db_session, minio_client, media_bytes, path_segment, file_type, pytestconfig):
+    old_content, old_filename = media_bytes
     if file_type == FileType.sound:
         new_filename = 'silence2.mp3'
         with open(pytestconfig.rootpath / 'tests' / 'fixtures' / new_filename, 'rb') as f:
@@ -94,7 +95,7 @@ def test_update_not_exists(request, client, default_track, db_session, minio_cli
 
     file = (new_filename, BytesIO(new_content), 'audio/mpeg' if file_type == FileType.sound else 'image/jpeg')
 
-    response = client.put(
+    response = await client.put(
         API_V1_PREFIX + f'/music/{default_track.id + 11}/{path_segment}',
         files={
             'file': file
@@ -103,7 +104,7 @@ def test_update_not_exists(request, client, default_track, db_session, minio_cli
 
     assert response.status_code == 404
 
-    db_file = db_session.query(File).filter_by(soundtrack_id=default_track.id, file_type=file_type).first()
+    db_file = (await db_session.execute(select(File).filter_by(soundtrack_id=default_track.id, file_type=file_type))).scalar_one_or_none()
     assert db_file.original_filename == old_filename
 
     assert minio_client.get_object(BUCKET_NAME, db_file.storage_filename).read() == old_content

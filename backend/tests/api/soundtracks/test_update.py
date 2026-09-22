@@ -2,10 +2,10 @@ from app.main import API_V1_PREFIX
 from app.models import Soundtrack
 
 
-def test_update_track(client, default_track, db_session):
+async def test_update_track(client, default_track, db_session):
     new_name = 'update-track'
     payload = {'name': new_name}
-    response = client.put(API_V1_PREFIX + f'/music/{default_track.id}', json=payload)
+    response = await client.put(API_V1_PREFIX + f'/music/{default_track.id}', json=payload)
     assert response.status_code == 200
 
     result = response.json()
@@ -16,5 +16,5 @@ def test_update_track(client, default_track, db_session):
 
     assert len(result.get('files')) == 2
 
-    db_track = db_session.query(Soundtrack).filter_by(id=default_track.id).first()
+    db_track = await db_session.get(Soundtrack, default_track.id)
     assert db_track.name == new_name
