@@ -17,7 +17,11 @@ class Soundtrack(Base):
     name: Mapped[str] = mapped_column(String)
     author_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     author: Mapped['User'] = relationship(back_populates='soundtracks')
-    files: Mapped[List['File']] = relationship(back_populates='soundtrack')
+    files: Mapped[List['File']] = relationship(
+        back_populates='soundtrack',
+        cascade='all, delete-orphan',
+        passive_deletes=True,
+    )
 
 
 class User(Base):
