@@ -33,19 +33,20 @@ async def create(
     if cover_image and cover_image.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail='Unsupported image format')
 
-    db_track = track_repo.add(track=track)
+    db_track = await track_repo.add(track=track)
 
     await files_service.upload_audio(file=audio_file, track=db_track)
 
     if cover_image:
-        files_service.upload_cover(cover=cover_image, track=db_track)
-    
+        await files_service.upload_cover(cover=cover_image, track=db_track)
+
+    db_track = await track_repo.get_by_id(track_id=db_track.id)
     return db_track
 
 
 @router.get('/music/{track_id}', response_model=SoundtrackResponse | None)
-def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
-    db_track = track_repo.get_by_id(track_id)
+async def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
+    db_track = await track_repo.get_by_id(track_id)
     
     if not db_track:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
@@ -54,8 +55,8 @@ def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksReposito
 
 
 @router.get('/music/{track_id}/file')
-def download_audio(files_service: FilesServiceDependency, track_id: int):
-    res = files_service.download_audio(track_id)
+async def download_audio(files_service: FilesServiceDependency, track_id: int):
+    res = await files_service.download_audio(track_id)
     if not res:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -68,8 +69,8 @@ def download_audio(files_service: FilesServiceDependency, track_id: int):
 
 
 @router.get('/music/{track_id}/cover')
-def download_cover(files_service: FilesServiceDependency, track_id: int):
-    res = files_service.download_cover(track_id)
+async def download_cover(files_service: FilesServiceDependency, track_id: int):
+    res = await files_service.download_cover(track_id)
     if not res:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
     
@@ -88,8 +89,8 @@ async def get_all(track_repo: Annotated[SoundtracksRepository, Depends(Soundtrac
 
 
 @router.put('/music/{track_id}', response_model=SoundtrackResponse | None)
-def update(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int, track: UpdateSoundtrackSchema):
-    db_track = track_repo.update(track_id=track_id, track=track)
+async def update(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int, track: UpdateSoundtrackSchema):
+    db_track = await track_repo.update(track_id=track_id, track=track)
     if not db_track:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
     
@@ -115,11 +116,11 @@ async def update_cover(files_service: FilesServiceDependency, track_id: int, fil
 
 
 @router.delete('/music/{track_id}/')
-def delete(files_service: FilesServiceDependency, track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
-    track = track_repo.get_by_id(track_id)
+async def delete(files_service: FilesServiceDependency, track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)], track_id: int):
+    track = await track_repo.get_by_id(track_id)
     if not track:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
 
-    files_service.delete_file_from_storage(track_id)
+    await files_service.delete_file_from_storage(track_id)
 
-    track_repo.delete(track_id=track_id)
+    await track_repo.delete(track_id=track_id)
