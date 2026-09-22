@@ -12,35 +12,35 @@ class SoundtracksRepository:
         self._session = session
 
     async def get(self) -> List[Soundtrack]:
-        tracks = await self._session.execute(select(Soundtrack).options(selectinload(Soundtrack.author), selectinload(Soundtrack.files)))
-        return tracks.scalars().all()
+        result = await self._session.execute(select(Soundtrack).options(selectinload(Soundtrack.author), selectinload(Soundtrack.files)))
+        return result.scalars().all()
     
-    def get_by_id(self, track_id: int) -> Soundtrack:
-        db_track = self._session.execute(select(Soundtrack)).options(selectinload(Soundtrack.author)).filter_by(id=track_id).first()
-        return db_track
+    async def get_by_id(self, track_id: int) -> Soundtrack:
+        result = await self._session.execute(select(Soundtrack).options(selectinload(Soundtrack.author), selectinload(Soundtrack.files)).filter_by(id=track_id))
+        return result.scalar_one_or_none()
     
-    def add(self, track: SoundtrackSchema) -> Soundtrack:
+    async def add(self, track: SoundtrackSchema) -> Soundtrack:
         track = Soundtrack(
             name=track.name,
             author_id=track.author_id,
         )
         self._session.add(track)
-        self._session.commit()
-        self._session.refresh(track)
+        await self._session.flush()
 
         return track
     
-    def update(self, track_id: int, track: UpdateSoundtrackSchema) -> Soundtrack:
-        db_track = self._session.query(Soundtrack).options(selectinload(Soundtrack.author)).filter_by(id=track_id).first()
+    async def update(self, track_id: int, track: UpdateSoundtrackSchema) -> Soundtrack:
+        result = await self._session.execute(select(Soundtrack).options(selectinload(Soundtrack.author), selectinload(Soundtrack.files)).filter_by(id=track_id))
+        db_track = result.scalar_one_or_none()
         if not db_track:
             return None
         
         for key, value in track.model_dump().items():
             setattr(db_track, key, value)
-        self._session.commit()
-        self._session.refresh(db_track)
+        await self._session.flush()
+
         return db_track
     
-    def delete(self, track_id: int):
-        self._session.query(Soundtrack).filter_by(id=track_id).delete()
-        self._session.commit()
+    async def delete(self, track_id: int):
+        db_track = await self._session.get(Soundtrack, track_id)
+        await self._session.delete(db_track)
