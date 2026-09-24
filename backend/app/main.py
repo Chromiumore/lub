@@ -8,7 +8,7 @@ API_V1_PREFIX = '/api/v1'
 
 def create_app() -> FastAPI:
     app = FastAPI()
-    app.include_router(soundtracks_router, prefix=API_V1_PREFIX)
-    app.include_router(auth_router, prefix=API_V1_PREFIX)
+    app.include_router(soundtracks_router, prefix=API_V1_PREFIX, tags=['tracks'])
+    app.include_router(auth_router, prefix=API_V1_PREFIX, tags=['auth'])
 
     return app
