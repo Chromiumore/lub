@@ -9,7 +9,7 @@ from app.config import get_config
 @lru_cache
 def get_engine():
     return create_async_engine(
-        get_config().db.get_db_url(),
+        get_config().db.get_async_db_url(),
         echo=True,
         pool_size=20,
         max_overflow=40,

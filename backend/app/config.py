@@ -3,22 +3,36 @@ from functools import lru_cache
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-    
+
 class DatabaseConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix='db_', case_sensitive=False)
+    model_config = SettingsConfigDict(
+        env_file='.env',
+        env_prefix='db_',
+        case_sensitive=False,
+        extra='ignore',
+    )
 
     endpoint: str
     name: str
     user: str
     password: SecretStr
 
-    def get_db_url(self):
+    def get_sync_db_url(self):
+        return (f'postgresql+psycopg2://'
+                f'{self.user}:{self.password.get_secret_value()}@{self.endpoint}/{self.name}')
+
+    def get_async_db_url(self):
         return (f'postgresql+asyncpg://'
                 f'{self.user}:{self.password.get_secret_value()}@{self.endpoint}/{self.name}')
 
 
 class S3Config(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix='s3_', case_sensitive=False)
+    model_config = SettingsConfigDict(
+        env_file='.env',
+        env_prefix='s3_',
+        case_sensitive=False,
+        extra='ignore',
+    )
 
     endpoint: str
     user: str
@@ -26,20 +40,20 @@ class S3Config(BaseSettings):
 
 
 class AuthConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix='auth_', case_sensitive=False)
+    model_config = SettingsConfigDict(
+        env_file='.env',
+        env_prefix='auth_',
+        case_sensitive=False,
+        extra='ignore',
+    )
 
     secret_key: SecretStr
 
 
-class Config(BaseSettings):
+class Config(BaseSettings):    
     db: DatabaseConfig = Field(default_factory=DatabaseConfig)
     s3: S3Config = Field(default_factory=S3Config)
     auth: AuthConfig = Field(default_factory=AuthConfig)
-
-    model_config = SettingsConfigDict(
-            env_file='.env',
-            extra='ignore',
-        )
 
 
 @lru_cache

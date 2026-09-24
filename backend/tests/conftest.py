@@ -35,7 +35,7 @@ def app_config():
 
 @pytest_asyncio.fixture(scope='session', loop_scope='session')
 async def db_engine(app_config):
-    engine = create_async_engine(app_config.db.get_db_url())
+    engine = create_async_engine(app_config.db.get_async_db_url())
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield engine
@@ -128,9 +128,9 @@ def empty_jpeg_bytes():
 @pytest.fixture(scope='session')
 def media_bytes(request, empty_mp3_bytes, empty_jpeg_bytes):
     file_type = request.param
-    if file_type == FileType.sound:
+    if file_type == FileType.audio:
         return empty_mp3_bytes
-    elif file_type == FileType.image:
+    elif file_type == FileType.cover:
         return empty_jpeg_bytes
     else:
         return None
