@@ -11,7 +11,7 @@ from app.files.storage import BUCKET_NAME
 @pytest.mark.parametrize(
     'media_bytes, path_segment',
     [
-        (FileType.audio, 'file'),
+        (FileType.audio, 'audio'),
         (FileType.cover, 'cover')
     ],
     indirect=['media_bytes']
@@ -28,7 +28,7 @@ async def test_download(client, default_track, media_bytes, path_segment):
 @pytest.mark.parametrize(
     'media_bytes, path_segment',
     [
-        (FileType.audio, 'file'),
+        (FileType.audio, 'audio'),
         (FileType.cover, 'cover')
     ],
     indirect=['media_bytes']
@@ -45,7 +45,7 @@ async def test_download_not_exists(client, default_track, media_bytes, path_segm
 @pytest.mark.parametrize(
     'path_segment, file_type',
     [
-        ('file', FileType.audio),
+        ('audio', FileType.audio),
         ('cover', FileType.cover)
     ]
 )
@@ -78,7 +78,7 @@ async def test_update(client, default_track, pytestconfig, minio_client, db_sess
 @pytest.mark.parametrize(
     'media_bytes, file_type, path_segment',
     [
-        (FileType.audio, FileType.audio, 'file'),
+        (FileType.audio, FileType.audio, 'audio'),
         (FileType.cover, FileType.cover, 'cover')
     ],
     indirect=['media_bytes']

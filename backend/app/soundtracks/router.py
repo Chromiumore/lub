@@ -1,7 +1,7 @@
 from typing import Annotated
 from urllib.parse import quote
 
-from fastapi import UploadFile, File, APIRouter, Body, Form, Depends, Response, status, HTTPException
+from fastapi import UploadFile, File, APIRouter, Body, Depends, Response, status, HTTPException
 from fastapi.responses import StreamingResponse
 
 from app.soundtracks.repository import SoundtracksRepository
@@ -54,7 +54,7 @@ async def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRe
     return db_track
 
 
-@router.get('/music/{track_id}/file')
+@router.get('/music/{track_id}/audio')
 async def download_audio(files_service: FilesServiceDependency, track_id: int):
     res = await files_service.download_audio(track_id)
     if not res:
@@ -62,10 +62,10 @@ async def download_audio(files_service: FilesServiceDependency, track_id: int):
 
     response, name = res
     return StreamingResponse(
-            content=response,
-            media_type='application/octet-stream',
-            headers={'Content-Disposition': f'attachment; filename="{quote(name)}"'}
-        )
+        content=response,
+        media_type='application/octet-stream',
+        headers={'Content-Disposition': f'attachment; filename="{quote(name)}"'}
+    )
 
 
 @router.get('/music/{track_id}/cover')
@@ -76,10 +76,10 @@ async def download_cover(files_service: FilesServiceDependency, track_id: int):
     
     response, name = res
     return StreamingResponse(
-            content=response,
-            media_type='application/octet-stream',
-            headers={'Content-Disposition': f'attachment; filename="{quote(name)}"'}
-        )
+        content=response,
+        media_type='application/octet-stream',
+        headers={'Content-Disposition': f'attachment; filename="{quote(name)}"'}
+    )
 
 
 @router.get('/music', response_model=list[SoundtrackResponse])
@@ -97,7 +97,7 @@ async def update(track_repo: Annotated[SoundtracksRepository, Depends(Soundtrack
     return db_track
 
 
-@router.put('/music/{track_id}/file')
+@router.put('/music/{track_id}/audio')
 async def update_audio(files_service: FilesServiceDependency, track_id: int, file: UploadFile):
     if file.content_type not in ALLOWED_AUDIO_TYPES:
         raise HTTPException(status_code=400, detail='Unsupported audio format')
