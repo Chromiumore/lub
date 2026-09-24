@@ -2,7 +2,6 @@ import json
 from io import BytesIO
 
 import pytest
-from pytest_lazy_fixtures import lf
 from sqlalchemy import select
 
 from app.main import API_V1_PREFIX
@@ -10,18 +9,26 @@ from app.files.storage import BUCKET_NAME
 from app.models import File, FileType, Soundtrack
 
 
-async def test_create_track(client, db_session, minio_client, default_user, empty_mp3_bytes, empty_jpeg_bytes):
+@pytest.mark.parametrize(
+        'media_bytes',
+        [None, FileType.image],
+        indirect=True
+)
+async def test_create_track(client, db_session, minio_client, default_user, empty_mp3_bytes, media_bytes):
+    jpeg_bytes = media_bytes
     track_data = {
         'name': 'track1234',
         'author_id': default_user[0]
     }
     audio_file = (empty_mp3_bytes[1], BytesIO(empty_mp3_bytes[0]), 'audio/mpeg')
-    cover_file = (empty_jpeg_bytes[1], BytesIO(empty_jpeg_bytes[0]), 'image/jpeg')
 
     files = {
         'audio_file': audio_file,
-        'cover_image': cover_file
     }
+
+    if jpeg_bytes:
+        cover_file = (jpeg_bytes[1], BytesIO(jpeg_bytes[0]), 'image/jpeg')
+        files['cover_image'] = cover_file
 
     response = await client.post(
         API_V1_PREFIX + '/music/',
@@ -41,7 +48,6 @@ async def test_create_track(client, db_session, minio_client, default_user, empt
     files_result = result.get('files')
     assert len(files_result) == len(files)
     assert any(f.get('file_type') == FileType.sound.value and f.get('duration') is not None for f in files_result)
-    assert any(f.get('file_type') == FileType.image.value and f.get('duration') is None for f in files_result)
 
     id = result.get('id')
     assert id
@@ -53,5 +59,8 @@ async def test_create_track(client, db_session, minio_client, default_user, empt
     assert len(db_files) == len(files)
 
     assert minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.sound))
-    assert minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.image))
+
+    if jpeg_bytes:
+        assert any(f.get('file_type') == FileType.image.value and f.get('duration') is None for f in files_result)
+        assert minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.image))
     

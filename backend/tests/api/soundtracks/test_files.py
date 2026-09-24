@@ -4,7 +4,7 @@ import pytest
 from sqlalchemy import select
 
 from app.main import API_V1_PREFIX
-from app.models import File, FileType, Soundtrack, User
+from app.models import File, FileType
 from app.files.storage import BUCKET_NAME
 
 

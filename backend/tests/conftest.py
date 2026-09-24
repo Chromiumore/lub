@@ -3,7 +3,6 @@ import io
 import pytest
 import pytest_asyncio
 from fastapi import UploadFile
-from fastapi.testclient import TestClient
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from minio import Minio
@@ -13,7 +12,7 @@ from app.main import create_app
 from app.models import Base
 from app.config import Config, get_config
 from app.database import get_db
-from app.models import Soundtrack, File, FileType
+from app.models import Soundtrack, FileType
 from app.soundtracks.repository import SoundtracksRepository
 from app.files.minio import get_minio_client
 from app.files.repository import FilesRepository
@@ -133,6 +132,8 @@ def media_bytes(request, empty_mp3_bytes, empty_jpeg_bytes):
         return empty_mp3_bytes
     elif file_type == FileType.image:
         return empty_jpeg_bytes
+    else:
+        return None
 
 @pytest_asyncio.fixture
 async def default_user(db_session):
