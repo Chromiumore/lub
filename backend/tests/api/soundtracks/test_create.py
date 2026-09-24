@@ -11,7 +11,7 @@ from app.models import File, FileType, Soundtrack
 
 @pytest.mark.parametrize(
         'media_bytes',
-        [None, FileType.image],
+        [None, FileType.cover],
         indirect=True
 )
 async def test_create_track(client, db_session, minio_client, default_user, empty_mp3_bytes, media_bytes):
@@ -47,7 +47,7 @@ async def test_create_track(client, db_session, minio_client, default_user, empt
 
     files_result = result.get('files')
     assert len(files_result) == len(files)
-    assert any(f.get('file_type') == FileType.sound.value and f.get('duration') is not None for f in files_result)
+    assert any(f.get('file_type') == FileType.audio.value and f.get('duration') is not None for f in files_result)
 
     id = result.get('id')
     assert id
@@ -58,9 +58,9 @@ async def test_create_track(client, db_session, minio_client, default_user, empt
     db_files = (await db_session.execute(select(File).filter_by(soundtrack_id=id))).scalars().all()
     assert len(db_files) == len(files)
 
-    assert minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.sound))
+    assert minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.audio))
 
     if jpeg_bytes:
-        assert any(f.get('file_type') == FileType.image.value and f.get('duration') is None for f in files_result)
-        assert minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.image))
+        assert any(f.get('file_type') == FileType.cover.value and f.get('duration') is None for f in files_result)
+        assert minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.cover))
     

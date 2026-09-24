@@ -13,8 +13,8 @@ async def test_get_track(client, default_track):
     assert result.get('author').get('username') == default_track.author.username
 
     files_result = result.get('files')
-    assert any(f.get('file_type') == FileType.image.value and f.get('duration') is None for f in files_result)
-    assert any(f.get('file_type') == FileType.sound.value and f.get('duration') is not None for f in files_result)
+    assert any(f.get('file_type') == FileType.cover.value and f.get('duration') is None for f in files_result)
+    assert any(f.get('file_type') == FileType.audio.value and f.get('duration') is not None for f in files_result)
 
 
 async def test_get_tracks(client, default_track):

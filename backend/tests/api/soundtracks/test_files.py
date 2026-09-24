@@ -11,8 +11,8 @@ from app.files.storage import BUCKET_NAME
 @pytest.mark.parametrize(
     'media_bytes, path_segment',
     [
-        (FileType.sound, 'file'),
-        (FileType.image, 'cover')
+        (FileType.audio, 'file'),
+        (FileType.cover, 'cover')
     ],
     indirect=['media_bytes']
 )
@@ -28,8 +28,8 @@ async def test_download(client, default_track, media_bytes, path_segment):
 @pytest.mark.parametrize(
     'media_bytes, path_segment',
     [
-        (FileType.sound, 'file'),
-        (FileType.image, 'cover')
+        (FileType.audio, 'file'),
+        (FileType.cover, 'cover')
     ],
     indirect=['media_bytes']
 )
@@ -45,12 +45,12 @@ async def test_download_not_exists(client, default_track, media_bytes, path_segm
 @pytest.mark.parametrize(
     'path_segment, file_type',
     [
-        ('file', FileType.sound),
-        ('cover', FileType.image)
+        ('file', FileType.audio),
+        ('cover', FileType.cover)
     ]
 )
 async def test_update(client, default_track, pytestconfig, minio_client, db_session, path_segment, file_type):
-    if file_type == FileType.sound:
+    if file_type == FileType.audio:
         new_filename = 'silence2.mp3'
         with open(pytestconfig.rootpath / 'tests' / 'fixtures' / new_filename, 'rb') as f:
             content = f.read()
@@ -58,7 +58,7 @@ async def test_update(client, default_track, pytestconfig, minio_client, db_sess
         new_filename = 'new_cover2_update.jpg'
         content = b'new fake bytes new fake bytes'
 
-    file = (new_filename, BytesIO(content), 'audio/mpeg' if file_type == FileType.sound else 'image/jpeg')
+    file = (new_filename, BytesIO(content), 'audio/mpeg' if file_type == FileType.audio else 'image/jpeg')
 
     response = await client.put(
         API_V1_PREFIX + f'/music/{default_track.id}/{path_segment}',
@@ -78,14 +78,14 @@ async def test_update(client, default_track, pytestconfig, minio_client, db_sess
 @pytest.mark.parametrize(
     'media_bytes, file_type, path_segment',
     [
-        (FileType.sound, FileType.sound, 'file'),
-        (FileType.image, FileType.image, 'cover')
+        (FileType.audio, FileType.audio, 'file'),
+        (FileType.cover, FileType.cover, 'cover')
     ],
     indirect=['media_bytes']
 )
 async def test_update_not_exists(client, default_track, db_session, minio_client, media_bytes, path_segment, file_type, pytestconfig):
     old_content, old_filename = media_bytes
-    if file_type == FileType.sound:
+    if file_type == FileType.audio:
         new_filename = 'silence2.mp3'
         with open(pytestconfig.rootpath / 'tests' / 'fixtures' / new_filename, 'rb') as f:
             new_content = f.read()
@@ -93,7 +93,7 @@ async def test_update_not_exists(client, default_track, db_session, minio_client
         new_filename = 'new_cover2_update.jpg'
         new_content = b'new fake bytes new fake bytes'
 
-    file = (new_filename, BytesIO(new_content), 'audio/mpeg' if file_type == FileType.sound else 'image/jpeg')
+    file = (new_filename, BytesIO(new_content), 'audio/mpeg' if file_type == FileType.audio else 'image/jpeg')
 
     response = await client.put(
         API_V1_PREFIX + f'/music/{default_track.id + 11}/{path_segment}',

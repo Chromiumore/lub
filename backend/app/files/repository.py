@@ -12,7 +12,7 @@ class FilesRepository:
     def __init__(self, session: DBSession):
         self._session = session
 
-    async def add(self, track_id: int, file: UploadFile, file_type: FileType = FileType.sound, duration: int = None) -> File:
+    async def add(self, track_id: int, file: UploadFile, file_type: FileType = FileType.audio, duration: int = None) -> File:
         _, ext = os.path.splitext(file.filename)
         db_file = File(
             storage_filename=f'{uuid4()}.{ext}',

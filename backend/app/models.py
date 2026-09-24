@@ -34,8 +34,8 @@ class User(Base):
 
 
 class FileType(Enum):
-    sound = 'sound'
-    image = 'image'
+    audio = 'audio'
+    cover = 'cover'
 
 
 class File(Base):
