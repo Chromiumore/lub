@@ -11,8 +11,8 @@ class SoundtracksRepository:
     def __init__(self, session: DBSession):
         self._session = session
 
-    async def get(self) -> List[Soundtrack]:
-        result = await self._session.execute(select(Soundtrack).options(selectinload(Soundtrack.author), selectinload(Soundtrack.files)))
+    async def get_all(self, limit: int = 100, offset: int = 0) -> List[Soundtrack]:
+        result = await self._session.execute(select(Soundtrack).options(selectinload(Soundtrack.author), selectinload(Soundtrack.files)).limit(limit).offset(offset))
         return result.scalars().all()
     
     async def get_by_id(self, track_id: int) -> Soundtrack:

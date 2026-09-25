@@ -1,7 +1,7 @@
 from typing import Annotated
 from urllib.parse import quote
 
-from fastapi import UploadFile, File, APIRouter, Body, Depends, Response, status, HTTPException
+from fastapi import UploadFile, File, APIRouter, Body, Query, Depends, Response, status, HTTPException
 from fastapi.responses import StreamingResponse
 
 from app.soundtracks.repository import SoundtracksRepository
@@ -83,8 +83,12 @@ async def download_cover(files_service: FilesServiceDependency, track_id: int):
 
 
 @router.get('/music', response_model=list[SoundtrackResponse])
-async def get_all(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)]):
-    db_tracks = await track_repo.get()
+async def get_all(
+    track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRepository)],
+    limit: int = Query(ge=1, le=100, default=20),
+    offset: int = Query(ge=0, default=0)
+):
+    db_tracks = await track_repo.get_all(limit=limit, offset=offset)
     return db_tracks
 
 
