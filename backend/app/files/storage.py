@@ -19,6 +19,14 @@ class FileStorage:
     def download(self, filename: str):
         return self._client.get_object(BUCKET_NAME, filename)
 
+    def stream_file(self, filename: str, chunk_size: int = 1024 * 1024):
+        response = self._client.get_object(BUCKET_NAME, filename)
+        try:
+            yield from response.stream(chunk_size)
+        finally:
+            response.close()
+            response.release_conn()
+
     def upload(self, filename: str, file: UploadFile):
         content = file.file.read()
         file_size = len(content)

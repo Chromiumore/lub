@@ -16,23 +16,24 @@ class FilesService:
         self._tracks_repo = tracks_repo
         self._file_storage = file_storage
 
+    async def get_by_track_id_and_type(self, track_id: int, file_type: FileType):
+        return await self._files_repo.get_by_track_id(track_id=track_id, file_type=file_type)
+
     async def _upload(self, file: UploadFile, track: Soundtrack, file_type: FileType, duration: int | None = None) -> DBFile:
         db_file = await self._files_repo.add(track_id=track.id, file=file, file_type=file_type, duration=duration)
 
         self._file_storage.upload(db_file.storage_filename, file)
 
         return db_file
-    
-    async def _download(self, track_id: int, file_type: FileType):
-        db_file = await self._files_repo.get_by_track_id(track_id=track_id, file_type=file_type)
 
+    async def _stream(self, track_id: int, file_type: FileType):
+        db_file = await self._files_repo.get_by_track_id(track_id=track_id, file_type=file_type)
+                
         if not db_file:
             return None
         
         filename = db_file.storage_filename
-        response = self._file_storage.download(filename)
-
-        return response, db_file.original_filename
+        return self._file_storage.stream_file(filename)
     
     async def _update(self, track_id: int, file: UploadFile, file_type: FileType, duration: int | None = None) -> None:
         db_file = await self._files_repo.update(track_id=track_id, file=file, file_type=file_type, duration=duration)
@@ -52,18 +53,18 @@ class FilesService:
     async def upload_cover(self, cover: UploadFile, track: Soundtrack) -> DBFile:
         return await self._upload(cover, track, FileType.cover)
     
-    async def download_audio(self, track_id: int):
-        return await self._download(track_id, FileType.audio)
-    
-    async def download_cover(self, track_id: int):
-        return await self._download(track_id, FileType.cover)
-    
     async def update_audio(self, track_id: int, file: UploadFile):
         duration = await self.get_audio_duration_in_seconds(file)
         return await self._update(track_id, file, FileType.audio, duration)
     
     async def update_cover(self, track_id: int, file: UploadFile):
         return await self._update(track_id, file, FileType.cover)
+
+    async def stream_audio(self, track_id: int):
+        return await self._stream(track_id, FileType.audio)
+
+    async def stream_cover(self, track_id: int):
+        return await self._stream(track_id, FileType.cover)
 
     async def delete_file_from_storage(self, track_id: int) -> None:
         sound = await self._files_repo.get_by_track_id(track_id, FileType.audio)

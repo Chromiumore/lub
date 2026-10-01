@@ -7,6 +7,7 @@ from fastapi.responses import StreamingResponse
 from app.soundtracks.repository import SoundtracksRepository
 from app.soundtracks.schemas import SoundtrackSchema, SoundtrackResponse, UpdateSoundtrackSchema
 from app.files.service import FilesServiceDependency
+from app.models import FileType
 
 router = APIRouter()
 
@@ -55,30 +56,32 @@ async def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRe
 
 
 @router.get('/music/{track_id}/audio')
-async def download_audio(files_service: FilesServiceDependency, track_id: int):
-    res = await files_service.download_audio(track_id)
-    if not res:
+async def stream_audio(files_service: FilesServiceDependency, track_id: int):
+    db_file = await files_service.get_by_track_id_and_type(track_id, FileType.audio)
+    if not db_file:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
-
-    response, name = res
+    
+    response = await files_service.stream_audio(track_id)
+    
     return StreamingResponse(
         content=response,
         media_type='application/octet-stream',
-        headers={'Content-Disposition': f'attachment; filename="{quote(name)}"'}
+        headers={'Content-Disposition': f'attachment; filename="{quote(db_file.original_filename)}"'}
     )
 
 
 @router.get('/music/{track_id}/cover')
-async def download_cover(files_service: FilesServiceDependency, track_id: int):
-    res = await files_service.download_cover(track_id)
-    if not res:
+async def stream_cover(files_service: FilesServiceDependency, track_id: int):
+    db_file = await files_service.get_by_track_id_and_type(track_id, FileType.cover)
+    if not db_file:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
     
-    response, name = res
+    response = await files_service.stream_cover(track_id)
+    
     return StreamingResponse(
         content=response,
         media_type='application/octet-stream',
-        headers={'Content-Disposition': f'attachment; filename="{quote(name)}"'}
+        headers={'Content-Disposition': f'attachment; filename="{quote(db_file.original_filename)}"'}
     )
 
 
