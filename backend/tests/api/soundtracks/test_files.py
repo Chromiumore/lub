@@ -71,7 +71,10 @@ async def test_update(client, default_track, pytestconfig, minio_client, db_sess
     db_file = (await db_session.execute(select(File).filter_by(soundtrack_id=default_track.id, file_type=file_type))).scalar_one_or_none()
     assert db_file.original_filename == new_filename
 
-    assert minio_client.get_object(BUCKET_NAME, db_file.storage_filename).read() == content
+    file_obj = minio_client.get_object(BUCKET_NAME, db_file.storage_filename)
+    assert file_obj.read() == content
+    file_obj.close()
+    file_obj.release_conn()
 
 
 @pytest.mark.parametrize(
@@ -106,4 +109,7 @@ async def test_update_not_exists(client, default_track, db_session, minio_client
     db_file = (await db_session.execute(select(File).filter_by(soundtrack_id=default_track.id, file_type=file_type))).scalar_one_or_none()
     assert db_file.original_filename == old_filename
 
-    assert minio_client.get_object(BUCKET_NAME, db_file.storage_filename).read() == old_content
+    file_obj = minio_client.get_object(BUCKET_NAME, db_file.storage_filename)
+    assert file_obj.read() == old_content
+    file_obj.close()
+    file_obj.release_conn()

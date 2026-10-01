@@ -58,9 +58,15 @@ async def test_create_track(client, db_session, minio_client, default_user, empt
     db_files = (await db_session.execute(select(File).filter_by(soundtrack_id=id))).scalars().all()
     assert len(db_files) == len(files)
 
-    assert minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.audio))
+    file_obj = minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.audio))
+    assert file_obj
+    file_obj.close()
+    file_obj.release_conn()
 
     if jpeg_bytes:
         assert any(f.get('file_type') == FileType.cover.value and f.get('duration') is None for f in files_result)
-        assert minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.cover))
+        file_obj = minio_client.get_object(BUCKET_NAME, next(f.storage_filename for f in db_files if f.file_type == FileType.cover))
+        assert file_obj
+        file_obj.close()
+        file_obj.release_conn()
     
