@@ -19,6 +19,10 @@ class FilesService:
     async def get_by_track_id_and_type(self, track_id: int, file_type: FileType):
         return await self._files_repo.get_by_track_id(track_id=track_id, file_type=file_type)
 
+    async def get_audio_stat_by_track_id(self, track_id: int):
+        db_file = await self._files_repo.get_by_track_id(track_id=track_id, file_type=FileType.audio)
+        return self._file_storage.get_stat(db_file.storage_filename)
+
     async def _upload(self, file: UploadFile, track: Soundtrack, file_type: FileType, duration: int | None = None) -> DBFile:
         db_file = await self._files_repo.add(track_id=track.id, file=file, file_type=file_type, duration=duration)
 
@@ -26,14 +30,14 @@ class FilesService:
 
         return db_file
 
-    async def _stream(self, track_id: int, file_type: FileType):
+    async def _stream(self, track_id: int, file_type: FileType, offset: int = 0, length: int = 0):
         db_file = await self._files_repo.get_by_track_id(track_id=track_id, file_type=file_type)
                 
         if not db_file:
             return None
         
         filename = db_file.storage_filename
-        return self._file_storage.stream_file(filename)
+        return self._file_storage.stream_file(filename, offset=offset, length=length)
     
     async def _update(self, track_id: int, file: UploadFile, file_type: FileType, duration: int | None = None) -> None:
         db_file = await self._files_repo.update(track_id=track_id, file=file, file_type=file_type, duration=duration)
@@ -60,8 +64,8 @@ class FilesService:
     async def update_cover(self, track_id: int, file: UploadFile):
         return await self._update(track_id, file, FileType.cover)
 
-    async def stream_audio(self, track_id: int):
-        return await self._stream(track_id, FileType.audio)
+    async def stream_audio(self, track_id: int, offset: int = 0, length: int = 0):
+        return await self._stream(track_id, FileType.audio, offset=offset, length=length)
 
     async def stream_cover(self, track_id: int):
         return await self._stream(track_id, FileType.cover)

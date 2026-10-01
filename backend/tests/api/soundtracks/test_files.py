@@ -16,12 +16,11 @@ from app.files.storage import BUCKET_NAME
     ],
     indirect=['media_bytes']
 )
-async def test_download(client, default_track, media_bytes, path_segment):
+async def test_download_fully(client, default_track, media_bytes, path_segment):
     file_content, filename = media_bytes
 
     response = await client.get(API_V1_PREFIX + f'/music/{default_track.id}/{path_segment}')
     assert response.status_code == 200
-    assert response.headers['content-disposition'] == f'attachment; filename="{filename}"'
     assert response.content == file_content
 
 

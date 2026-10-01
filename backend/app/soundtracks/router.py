@@ -1,7 +1,8 @@
-from typing import Annotated
+import re
+from typing import Annotated, Optional
 from urllib.parse import quote
 
-from fastapi import UploadFile, File, APIRouter, Body, Query, Depends, Response, status, HTTPException
+from fastapi import UploadFile, File, APIRouter, Body, Query, Depends, Response, status, HTTPException, Header
 from fastapi.responses import StreamingResponse
 
 from app.soundtracks.repository import SoundtracksRepository
@@ -56,17 +57,41 @@ async def get(track_repo: Annotated[SoundtracksRepository, Depends(SoundtracksRe
 
 
 @router.get('/music/{track_id}/audio')
-async def stream_audio(files_service: FilesServiceDependency, track_id: int):
+async def stream_audio(
+    files_service: FilesServiceDependency,
+    track_id: int,
+    range_header: Annotated[Optional[str], Header(alias='Range')] = None
+):
+    match_range = None
+    if range_header:
+        match_range = re.match(r'bytes=(\d+)-(\d*)', range_header)
+        if not match_range:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Wrong range header structure')
+
     db_file = await files_service.get_by_track_id_and_type(track_id, FileType.audio)
     if not db_file:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+    stat = await files_service.get_audio_stat_by_track_id(track_id)
+    file_size = stat.size
+    content_type = stat.content_type or 'audio/mpeg'
+
+    start = int(match_range.group(1)) if match_range else 0
+    end = int(match_range.group(2)) if match_range and match_range.group(2) else file_size - 1
+    length = end - start + 1
+    status_code = status.HTTP_206_PARTIAL_CONTENT if match_range else status.HTTP_200_OK
     
-    response = await files_service.stream_audio(track_id)
+    response = await files_service.stream_audio(track_id, offset=start, length=length)
     
     return StreamingResponse(
         content=response,
-        media_type='application/octet-stream',
-        headers={'Content-Disposition': f'attachment; filename="{quote(db_file.original_filename)}"'}
+        status_code=status_code,
+        media_type=content_type,
+        headers={
+            'Content-Range': f'bytes {start}-{end}/{file_size}',
+            'Accept-Ranges': 'bytes',
+            'Content-Length': str(length)
+        }
     )
 
 

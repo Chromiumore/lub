@@ -16,11 +16,11 @@ class FileStorage:
         if not self._client.bucket_exists(BUCKET_NAME):
             self._client.make_bucket(BUCKET_NAME)
 
-    def download(self, filename: str):
-        return self._client.get_object(BUCKET_NAME, filename)
+    def get_stat(self, filename: str):
+        return self._client.stat_object(BUCKET_NAME, filename)
 
-    def stream_file(self, filename: str, chunk_size: int = 1024 * 1024):
-        response = self._client.get_object(BUCKET_NAME, filename)
+    def stream_file(self, filename: str, chunk_size: int = 1024 * 1024, offset: int = 0, length: int = 0):  
+        response = self._client.get_object(BUCKET_NAME, filename, offset=offset, length=length)
         try:
             yield from response.stream(chunk_size)
         finally:
