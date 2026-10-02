@@ -13,19 +13,21 @@ class ScreenPlayer extends StatefulWidget {
 }
 
 class _ScreenPlayerState extends State<ScreenPlayer> {
-    final _playerService = AudioPlayerService.instance;
-    bool _isPlaying = false;
-    
-    @override
-    void initState() {
-      _init();
-      _isPlaying = _playerService.isPlaying();
-      super.initState();
-    }
-    
-    void _init() async {
-      await _playerService.load('http://localhost:8000/api/v1/music/${widget.track.id}/file');
-    }
+  final _playerService = AudioPlayerService.instance;
+  bool _isPlaying = false;
+
+  @override
+  void initState() {
+    _init();
+    _isPlaying = _playerService.isPlaying();
+    super.initState();
+  }
+
+  void _init() async {
+    await _playerService.load(
+      'http://localhost:8000/api/v1/music/${widget.track.id}/audio',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,39 +41,25 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
               height: 300,
               width: 300,
             ),
-            Text(
-              widget.track.name!,
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
+            Text(widget.track.name!, style: TextStyle(fontSize: 20)),
             Text(widget.track.author!.username),
-            Slider(
-            value: 0.5,
-            onChanged: (value) {}
-            ),
+            Slider(value: 0.5, onChanged: (value) {}),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  onPressed: () => (),
-                  icon: Icon(Icons.fast_rewind)
-                ),
+                IconButton(onPressed: () => (), icon: Icon(Icons.fast_rewind)),
                 IconButton(
                   onPressed: () {
                     _playerService.processControlInput();
                     setState(() {
                       _isPlaying = !_isPlaying;
                     });
-                    },
-                  icon: _isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow)
+                  },
+                  icon: _isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow),
                 ),
-                IconButton(
-                  onPressed: () => (),
-                  icon: Icon(Icons.fast_forward)
-                ),
+                IconButton(onPressed: () => (), icon: Icon(Icons.fast_forward)),
               ],
-            )
+            ),
           ],
         ),
       ),
