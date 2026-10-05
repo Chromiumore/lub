@@ -32,6 +32,10 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
     super.dispose();
   }
 
+  String formatDuration(Duration duration) {
+    return '${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -71,18 +75,25 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
               },
             ),
 
-            StreamBuilder<bool>(
-              stream: _playerService.playingStream,
-              initialData: _playerService.isPlaying,
-              builder: (context, snap) {
-                final isPlaying = snap.data ?? false;
-                return Padding(
-                  padding: EdgeInsetsGeometry.only(left: 25, right: 25),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('00:00'),
-                      Row(
+            Padding(
+              padding: EdgeInsetsGeometry.only(left: 25, right: 25),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  StreamBuilder<Duration>(
+                    stream: _playerService.positionStream,
+                    builder: (context, posSnap) {
+                      final position = posSnap.data ?? Duration.zero;
+                      return Text(formatDuration(position));
+                    },
+                  ),
+
+                  StreamBuilder<bool>(
+                    stream: _playerService.playingStream,
+                    initialData: _playerService.isPlaying,
+                    builder: (context, snap) {
+                      final isPlaying = snap.data ?? false;
+                      return Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
@@ -100,12 +111,19 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
                             icon: const Icon(Icons.fast_forward),
                           ),
                         ],
-                      ),
-                      Text('01:00'),
-                    ],
+                      );
+                    },
                   ),
-                );
-              },
+
+                  StreamBuilder<Duration?>(
+                    stream: _playerService.durationStream,
+                    builder: (context, durationSnap) {
+                      final duration = durationSnap.data ?? Duration.zero;
+                      return Text(formatDuration(duration));
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
