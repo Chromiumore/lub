@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
+import 'package:lub/features/player/presentation/widgets/player_controls.dart';
+import 'package:lub/features/player/presentation/widgets/player_slider.dart';
 
 class MiniPlayer extends StatefulWidget {
   const MiniPlayer({super.key});
@@ -22,20 +24,10 @@ class _MiniPlayerState extends State<MiniPlayer> {
       padding: EdgeInsets.all(20),
       child: Column(
         children: [
-          Slider(value: 0.5, onChanged: (value) {}),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(onPressed: () => (), icon: Icon(Icons.fast_rewind)),
-              IconButton(
-                onPressed: () {
-                  _playerService.handlePlayButton();
-                },
-                icon: Icon(Icons.pause),
-                // icon: _isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow),
-              ),
-              IconButton(onPressed: () => (), icon: Icon(Icons.fast_forward)),
-            ],
+          PlayerSlider(playerService: _playerService),
+          Padding(
+            padding: EdgeInsetsGeometry.only(left: 25, right: 25),
+            child: PlayerControls(playerService: _playerService),
           ),
         ],
       ),
