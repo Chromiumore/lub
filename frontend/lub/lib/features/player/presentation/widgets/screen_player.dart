@@ -14,12 +14,10 @@ class ScreenPlayer extends StatefulWidget {
 
 class _ScreenPlayerState extends State<ScreenPlayer> {
   final _playerService = AudioPlayerService.instance;
-  bool _isPlaying = false;
 
   @override
   void initState() {
     _init();
-    _isPlaying = _playerService.isPlaying();
     super.initState();
   }
 
@@ -27,6 +25,11 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
     await _playerService.load(
       'http://localhost:8000/api/v1/music/${widget.track.id}/audio',
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -43,22 +46,66 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
             ),
             Text(widget.track.name!, style: TextStyle(fontSize: 20)),
             Text(widget.track.author!.username),
-            Slider(value: 0.5, onChanged: (value) {}),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(onPressed: () => (), icon: Icon(Icons.fast_rewind)),
-                IconButton(
-                  onPressed: () {
-                    _playerService.processControlInput();
-                    setState(() {
-                      _isPlaying = !_isPlaying;
-                    });
+            StreamBuilder<Duration?>(
+              stream: _playerService.durationStream,
+              builder: (context, durationSnap) {
+                final duration = durationSnap.data ?? Duration.zero;
+                final max = duration.inSeconds > 0
+                    ? duration.inSeconds.toDouble()
+                    : 1.0;
+
+                return StreamBuilder<Duration>(
+                  stream: _playerService.positionStream,
+                  builder: (context, posSnap) {
+                    final position = posSnap.data ?? Duration.zero;
+                    final value = position.inSeconds.toDouble().clamp(0.0, max);
+
+                    return Slider(
+                      min: 0,
+                      max: max,
+                      value: value,
+                      onChanged: (v) => _playerService.handleSeek(v),
+                    );
                   },
-                  icon: _isPlaying ? Icon(Icons.pause) : Icon(Icons.play_arrow),
-                ),
-                IconButton(onPressed: () => (), icon: Icon(Icons.fast_forward)),
-              ],
+                );
+              },
+            ),
+
+            StreamBuilder<bool>(
+              stream: _playerService.playingStream,
+              initialData: _playerService.isPlaying,
+              builder: (context, snap) {
+                final isPlaying = snap.data ?? false;
+                return Padding(
+                  padding: EdgeInsetsGeometry.only(left: 25, right: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('00:00'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.fast_rewind),
+                          ),
+                          IconButton(
+                            onPressed: _playerService.handlePlayButton,
+                            icon: Icon(
+                              isPlaying ? Icons.pause : Icons.play_arrow,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.fast_forward),
+                          ),
+                        ],
+                      ),
+                      Text('01:00'),
+                    ],
+                  ),
+                );
+              },
             ),
           ],
         ),

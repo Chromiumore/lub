@@ -1,14 +1,20 @@
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 
-
 class AudioPlayerService {
+  final AudioPlayer _player = AudioPlayer();
+
   AudioPlayerService._privateConstructor();
   static final _instance = AudioPlayerService._privateConstructor();
 
-  final AudioPlayer _player = AudioPlayer();
-
   static AudioPlayerService get instance => _instance;
+  Stream<Duration> get positionStream => _player.positionStream;
+  Stream<Duration?> get durationStream => _player.durationStream;
+  Stream<bool> get playingStream => _player.playingStream;
+
+  Duration get position => _player.position;
+  Duration? get duration => _player.duration;
+  bool get isPlaying => _player.playing;
 
   Future<void> init() async {
     JustAudioMediaKit.ensureInitialized();
@@ -32,16 +38,16 @@ class AudioPlayerService {
     _player.stop();
   }
 
-  bool isPlaying() {
-    return _player.playing;
-  }
-
-  void processControlInput() {
+  void handlePlayButton() {
     if (_player.playing) {
       _player.pause();
     } else {
       _player.play();
     }
+  }
+
+  void handleSeek(double position) {
+    _player.seek(Duration(seconds: position.toInt()));
   }
 
   Future<void> dispose() async {
