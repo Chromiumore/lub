@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:lub/features/player/application/audio_player_service.dart';
+import 'package:lub/features/player/presentation/widgets/player_controls.dart';
+import 'package:lub/features/player/presentation/widgets/player_slider.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 
 class ScreenPlayer extends StatefulWidget {
@@ -50,80 +52,11 @@ class _ScreenPlayerState extends State<ScreenPlayer> {
             ),
             Text(widget.track.name!, style: TextStyle(fontSize: 20)),
             Text(widget.track.author!.username),
-            StreamBuilder<Duration?>(
-              stream: _playerService.durationStream,
-              builder: (context, durationSnap) {
-                final duration = durationSnap.data ?? Duration.zero;
-                final max = duration.inSeconds > 0
-                    ? duration.inSeconds.toDouble()
-                    : 1.0;
-
-                return StreamBuilder<Duration>(
-                  stream: _playerService.positionStream,
-                  builder: (context, posSnap) {
-                    final position = posSnap.data ?? Duration.zero;
-                    final value = position.inSeconds.toDouble().clamp(0.0, max);
-
-                    return Slider(
-                      min: 0,
-                      max: max,
-                      value: value,
-                      onChanged: (v) => _playerService.handleSeek(v),
-                    );
-                  },
-                );
-              },
-            ),
+            PlayerSlider(playerService: _playerService),
 
             Padding(
               padding: EdgeInsetsGeometry.only(left: 25, right: 25),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  StreamBuilder<Duration>(
-                    stream: _playerService.positionStream,
-                    builder: (context, posSnap) {
-                      final position = posSnap.data ?? Duration.zero;
-                      return Text(formatDuration(position));
-                    },
-                  ),
-
-                  StreamBuilder<bool>(
-                    stream: _playerService.playingStream,
-                    initialData: _playerService.isPlaying,
-                    builder: (context, snap) {
-                      final isPlaying = snap.data ?? false;
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.fast_rewind),
-                          ),
-                          IconButton(
-                            onPressed: _playerService.handlePlayButton,
-                            icon: Icon(
-                              isPlaying ? Icons.pause : Icons.play_arrow,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.fast_forward),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-
-                  StreamBuilder<Duration?>(
-                    stream: _playerService.durationStream,
-                    builder: (context, durationSnap) {
-                      final duration = durationSnap.data ?? Duration.zero;
-                      return Text(formatDuration(duration));
-                    },
-                  ),
-                ],
-              ),
+              child: PlayerControls(playerService: _playerService),
             ),
           ],
         ),
