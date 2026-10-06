@@ -3,31 +3,20 @@ import 'package:lub/features/player/application/audio_player_service.dart';
 import 'package:lub/features/player/presentation/widgets/player_controls.dart';
 import 'package:lub/features/player/presentation/widgets/player_slider.dart';
 
-class MiniPlayer extends StatefulWidget {
+class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
 
   @override
-  State<MiniPlayer> createState() => _MiniPlayerState();
-}
-
-class _MiniPlayerState extends State<MiniPlayer> {
-  final _playerService = AudioPlayerService.instance;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final playerService = AudioPlayerService.instance;
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          PlayerSlider(playerService: _playerService),
+          PlayerSlider(playerService: playerService),
           Padding(
-            padding: EdgeInsetsGeometry.only(left: 25, right: 25),
-            child: PlayerControls(playerService: _playerService),
+            padding: const EdgeInsets.only(left: 25, right: 25),
+            child: PlayerControls(playerService: playerService),
           ),
         ],
       ),

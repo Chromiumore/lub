@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 
@@ -6,11 +7,14 @@ class AudioPlayerService {
 
   AudioPlayerService._privateConstructor();
   static final _instance = AudioPlayerService._privateConstructor();
-
   static AudioPlayerService get instance => _instance;
-  Stream<Duration> get positionStream => _player.positionStream;
-  Stream<Duration?> get durationStream => _player.durationStream;
-  Stream<bool> get playingStream => _player.playingStream;
+
+  final ValueNotifier<int?> _currentTrackId = ValueNotifier<int?>(null);
+  ValueListenable<int?> get currentTrackId => _currentTrackId;
+
+  late final Stream<Duration> positionStream = _player.positionStream;
+  late final Stream<Duration?> durationStream = _player.durationStream;
+  late final Stream<bool> playingStream = _player.playingStream;
 
   Duration get position => _player.position;
   Duration? get duration => _player.duration;
@@ -21,10 +25,13 @@ class AudioPlayerService {
   }
 
   Future<void> load(int id) async {
-    String url = 'http://localhost:8000/api/v1/music/$id/audio';
-    if (_player.sequenceState.currentSource?.tag != id) {
-      await _player.setUrl(url, tag: id);
+    if (_player.sequenceState.currentSource?.tag == id) {
+      _currentTrackId.value = id;
+      return;
     }
+    String url = 'http://localhost:8000/api/v1/music/$id/audio';
+    await _player.setUrl(url, tag: id);
+    _currentTrackId.value = id;
   }
 
   void play() {
@@ -40,6 +47,7 @@ class AudioPlayerService {
   }
 
   void handlePlayButton() {
+    if (_currentTrackId.value == null) return;
     if (_player.playing) {
       _player.pause();
     } else {
@@ -47,11 +55,22 @@ class AudioPlayerService {
     }
   }
 
+  Future<void> toggleTrack(int id) async {
+    if (_currentTrackId.value != id) {
+      await load(id);
+      await _player.play();
+    } else {
+      handlePlayButton();
+    }
+  }
+
   void handleSeek(double position) {
+    if (_currentTrackId.value == null) return;
     _player.seek(Duration(seconds: position.toInt()));
   }
 
   Future<void> dispose() async {
     await _player.dispose();
+    _currentTrackId.dispose();
   }
 }

@@ -1,66 +1,89 @@
 import 'package:flutter/material.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
 
-class PlayerControls extends StatefulWidget {
-  const PlayerControls({super.key, required this.playerService});
+class PlayerControls extends StatelessWidget {
+  const PlayerControls({super.key, required this.playerService, this.trackId});
 
   final AudioPlayerService playerService;
+  final int? trackId;
 
-  @override
-  State<PlayerControls> createState() => _PlayerControlsState();
-}
+  String _format(Duration d) {
+    final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
 
-class _PlayerControlsState extends State<PlayerControls> {
-  String formatDuration(Duration duration) {
-    return '${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+  Future<void> _onPlayPressed() async {
+    if (trackId == null) {
+      playerService.handlePlayButton();
+    } else {
+      await playerService.toggleTrack(trackId!);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        StreamBuilder<Duration>(
-          stream: widget.playerService.positionStream,
-          builder: (context, posSnap) {
-            final position = posSnap.data ?? Duration.zero;
-            return Text(formatDuration(position));
-          },
-        ),
+    return ValueListenableBuilder<int?>(
+      valueListenable: playerService.currentTrackId,
+      builder: (context, currentId, _) {
+        final isActive = trackId == null
+            ? currentId != null
+            : currentId == trackId;
 
-        StreamBuilder<bool>(
-          stream: widget.playerService.playingStream,
-          initialData: widget.playerService.isPlaying,
-          builder: (context, snap) {
-            final isPlaying = snap.data ?? false;
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.fast_rewind),
-                ),
-                IconButton(
-                  onPressed: widget.playerService.handlePlayButton,
-                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.fast_forward),
-                ),
-              ],
-            );
-          },
-        ),
+        final VoidCallback? onPlay = trackId == null
+            ? (isActive ? _onPlayPressed : null)
+            : _onPlayPressed;
 
-        StreamBuilder<Duration?>(
-          stream: widget.playerService.durationStream,
-          builder: (context, durationSnap) {
-            final duration = durationSnap.data ?? Duration.zero;
-            return Text(formatDuration(duration));
-          },
-        ),
-      ],
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            StreamBuilder<Duration>(
+              stream: playerService.positionStream,
+              initialData: Duration.zero,
+              builder: (context, posSnap) {
+                final pos = isActive
+                    ? (posSnap.data ?? Duration.zero)
+                    : Duration.zero;
+                return Text(_format(pos));
+              },
+            ),
+            StreamBuilder<bool>(
+              stream: playerService.playingStream,
+              initialData: playerService.isPlaying,
+              builder: (context, snap) {
+                final isPlaying = isActive && (snap.data ?? false);
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: isActive ? () {} : null,
+                      icon: const Icon(Icons.fast_rewind),
+                    ),
+                    IconButton(
+                      onPressed: onPlay,
+                      icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                    ),
+                    IconButton(
+                      onPressed: isActive ? () {} : null,
+                      icon: const Icon(Icons.fast_forward),
+                    ),
+                  ],
+                );
+              },
+            ),
+            StreamBuilder<Duration?>(
+              stream: playerService.durationStream,
+              initialData: Duration.zero,
+              builder: (context, durSnap) {
+                final dur = isActive
+                    ? (durSnap.data ?? Duration.zero)
+                    : Duration.zero;
+                return Text(_format(dur));
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

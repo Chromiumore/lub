@@ -1,37 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
 
-class PlayerSlider extends StatefulWidget {
-  const PlayerSlider({super.key, required this.playerService});
+class PlayerSlider extends StatelessWidget {
+  const PlayerSlider({super.key, required this.playerService, this.trackId});
 
   final AudioPlayerService playerService;
 
-  @override
-  State<StatefulWidget> createState() => _PlayerSliderState();
-}
+  final int? trackId;
 
-class _PlayerSliderState extends State<PlayerSlider> {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Duration?>(
-      stream: widget.playerService.durationStream,
-      builder: (context, durationSnap) {
-        final duration = durationSnap.data ?? Duration.zero;
-        final max = duration.inSeconds > 0
-            ? duration.inSeconds.toDouble()
-            : 1.0;
+    return ValueListenableBuilder<int?>(
+      valueListenable: playerService.currentTrackId,
+      builder: (context, currentId, _) {
+        final isActive = trackId == null
+            ? currentId != null
+            : currentId == trackId;
 
-        return StreamBuilder<Duration>(
-          stream: widget.playerService.positionStream,
-          builder: (context, posSnap) {
-            final position = posSnap.data ?? Duration.zero;
-            final value = position.inSeconds.toDouble().clamp(0.0, max);
+        if (!isActive) {
+          return const Slider(min: 0, max: 1, value: 0, onChanged: null);
+        }
 
-            return Slider(
-              min: 0,
-              max: max,
-              value: value,
-              onChanged: (v) => widget.playerService.handleSeek(v),
+        return StreamBuilder<Duration?>(
+          stream: playerService.durationStream,
+          builder: (context, durationSnap) {
+            final duration = durationSnap.data ?? Duration.zero;
+            final max = duration.inSeconds > 0
+                ? duration.inSeconds.toDouble()
+                : 1.0;
+
+            return StreamBuilder<Duration>(
+              stream: playerService.positionStream,
+              builder: (context, posSnap) {
+                final position = posSnap.data ?? Duration.zero;
+                final value = position.inSeconds.toDouble().clamp(0.0, max);
+
+                return Slider(
+                  min: 0,
+                  max: max,
+                  value: value,
+                  onChanged: (v) => playerService.handleSeek(v),
+                );
+              },
             );
           },
         );
