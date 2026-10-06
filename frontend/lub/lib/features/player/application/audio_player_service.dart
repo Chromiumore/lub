@@ -20,9 +20,10 @@ class AudioPlayerService {
     JustAudioMediaKit.ensureInitialized();
   }
 
-  Future<void> load(String url) async {
-    if (_player.sequenceState.currentSource?.tag != url) {
-      await _player.setUrl(url, tag: url);
+  Future<void> load(int id) async {
+    String url = 'http://localhost:8000/api/v1/music/$id/audio';
+    if (_player.sequenceState.currentSource?.tag != id) {
+      await _player.setUrl(url, tag: id);
     }
   }
 

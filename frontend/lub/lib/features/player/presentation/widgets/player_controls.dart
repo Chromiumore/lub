@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
 
 class PlayerControls extends StatefulWidget {
-  const PlayerControls({
-    super.key,
-    required AudioPlayerService this.playerService,
-  });
+  const PlayerControls({super.key, required this.playerService});
 
   final AudioPlayerService playerService;
 
