@@ -7,7 +7,6 @@ import '../../features/tracks/presentation/track.dart';
 import '../../features/player/presentation/widgets/mini_player.dart';
 import '../widgets/navigation_sidebar.dart';
 
-
 final router = GoRouter(
   routes: [
     ShellRoute(
@@ -27,25 +26,23 @@ final router = GoRouter(
                   Expanded(child: child),
                   MiniPlayer(),
                 ],
-              )
+              ),
             );
           },
           routes: [
-            GoRoute(
-              path: '/',
-              builder: (context, state) => HomeScreen(),
-            ),
-          ]
+            GoRoute(path: '/', builder: (context, state) => HomeScreen()),
+          ],
         ),
         GoRoute(
           path: '/music/:trackID',
-          builder: (context, state) => TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
+          builder: (context, state) =>
+              TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
         ),
         GoRoute(
           path: '/upload',
           builder: (context, state) => UploadTrackScreen(),
-        )
-      ]
-    )
+        ),
+      ],
+    ),
   ],
 );

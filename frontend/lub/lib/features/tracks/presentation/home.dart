@@ -32,41 +32,55 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: FutureBuilder<List<Track>>(
-        future: _tracks,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (context, index) {
-                final track = snapshot.data![index];
-                return ListTile(
-                  leading: FadeInImage.assetNetwork(
-                    image: _api.getCoverDownloadUrl(track.id!),
-                    placeholder: 'assets/images/photosintesis.jpg',
-                    height: 50,
-                    width: 50,
-                    fit: BoxFit.fill,
-                  ),
-                  title: Text(track.name!),
-                  subtitle: Text(track.author!.username!),
-                  trailing: Text(
-                    formatDurationMinutesSeconds(
-                      Duration(seconds: track.audio!.duration!),
-                    ),
-                  ),
-                  onTap: () => context.go('/music/${track.id}'),
-                );
+      child: Column(
+        children: [
+          Container(
+            alignment: AlignmentGeometry.centerRight,
+            padding: EdgeInsets.only(bottom: 10),
+            child: ElevatedButton(
+              child: Icon(Icons.refresh),
+              onPressed: () => context.push('/'),
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<Track>>(
+              future: _tracks,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.hasData) {
+                  return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      final track = snapshot.data![index];
+                      return ListTile(
+                        leading: FadeInImage.assetNetwork(
+                          image: _api.getCoverDownloadUrl(track.id!),
+                          placeholder: 'assets/images/photosintesis.jpg',
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.fill,
+                        ),
+                        title: Text(track.name!),
+                        subtitle: Text(track.author!.username!),
+                        trailing: Text(
+                          formatDurationMinutesSeconds(
+                            Duration(seconds: track.audio!.duration!),
+                          ),
+                        ),
+                        onTap: () => context.go('/music/${track.id}'),
+                      );
+                    },
+                  );
+                } else {
+                  return Center(child: Text('No data found'));
+                }
               },
-            );
-          } else {
-            return Center(child: Text('No data found'));
-          }
-        },
+            ),
+          ),
+        ],
       ),
     );
   }
