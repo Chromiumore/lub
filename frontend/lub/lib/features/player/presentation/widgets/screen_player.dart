@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
 import 'package:lub/features/player/presentation/widgets/player_controls.dart';
 import 'package:lub/features/player/presentation/widgets/player_slider.dart';
+import 'package:lub/features/tracks/data/api_client.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 
 class ScreenPlayer extends StatelessWidget {
-  const ScreenPlayer({super.key, required this.track});
+  ScreenPlayer({super.key, required this.track});
 
   final Track track;
+  final ApiClient _api = ApiClient();
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +19,12 @@ class ScreenPlayer extends StatelessWidget {
         padding: const EdgeInsets.only(top: 24),
         child: Column(
           children: [
-            Image.asset(
-              'assets/images/photosintesis.jpg',
+            FadeInImage.assetNetwork(
+              image: _api.getCoverDownloadUrl(track.id!),
+              placeholder: 'assets/images/photosintesis.jpg',
               height: 300,
               width: 300,
+              fit: BoxFit.fill,
             ),
             Text(track.name!, style: const TextStyle(fontSize: 20)),
             Text(track.author!.username!),

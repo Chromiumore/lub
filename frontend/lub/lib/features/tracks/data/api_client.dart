@@ -10,25 +10,25 @@ class ApiClient {
   static late BaseOptions _options;
   late final Dio _dio;
 
+  String get baseUrl => 'http://$_host:$_port/api/v1';
+
   ApiClient() {
-    _options = BaseOptions(baseUrl: 'http://$_host:$_port/api/v1');
+    _options = BaseOptions(baseUrl: baseUrl);
     _dio = Dio(_options);
   }
-  
+
   Future<TrackResponse> getTrack(int trackID) async {
-    var response = await _dio
-    .get('/music/$trackID');
+    var response = await _dio.get('/music/$trackID');
     TrackResponse track = TrackResponse.fromMap(response.data!);
     return Future.value(track);
   }
 
   Future<List<TrackResponse>> getTracks() async {
-    var response = await _dio
-    .get('/music');
+    var response = await _dio.get('/music');
     final List<dynamic> tracksData = response.data;
     List<TrackResponse> tracks = tracksData
-      .map((item) => TrackResponse.fromMap(item as Map<String, dynamic>))
-      .toList();
+        .map((item) => TrackResponse.fromMap(item as Map<String, dynamic>))
+        .toList();
     return Future.value(tracks);
   }
 
@@ -50,5 +50,9 @@ class ApiClient {
       }
       rethrow;
     }
+  }
+
+  String getCoverDownloadUrl(int trackId) {
+    return '$baseUrl/music/$trackId/cover';
   }
 }

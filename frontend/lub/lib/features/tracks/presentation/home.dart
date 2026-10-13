@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lub/features/tracks/data/api_client.dart';
 
 import 'package:lub/features/tracks/data/repositories/track_repository.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
@@ -15,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Track>> _tracks;
   final TrackRepository _trackRepository = TrackRepository();
+  final ApiClient _api = ApiClient();
 
   @override
   void initState() {
@@ -43,7 +45,13 @@ class _HomeScreenState extends State<HomeScreen> {
               itemBuilder: (context, index) {
                 final track = snapshot.data![index];
                 return ListTile(
-                  leading: FlutterLogo(),
+                  leading: FadeInImage.assetNetwork(
+                    image: _api.getCoverDownloadUrl(track.id!),
+                    placeholder: 'assets/images/photosintesis.jpg',
+                    height: 50,
+                    width: 50,
+                    fit: BoxFit.fill,
+                  ),
                   title: Text(track.name!),
                   subtitle: Text(track.author!.username!),
                   trailing: Text(
