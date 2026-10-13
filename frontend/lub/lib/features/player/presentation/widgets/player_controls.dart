@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
+import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/shared/utils/timer_formatter.dart';
 
 class PlayerControls extends StatelessWidget {
-  const PlayerControls({super.key, required this.playerService, this.trackId});
+  const PlayerControls({super.key, required this.playerService, this.track});
 
   final AudioPlayerService playerService;
-  final int? trackId;
+  final Track? track;
 
   Future<void> _onPlayPressed() async {
-    if (trackId == null) {
+    if (track == null) {
       playerService.handlePlayButton();
     } else {
-      await playerService.toggleTrack(trackId!);
+      await playerService.toggleTrack(track!.id!);
     }
   }
 
@@ -21,11 +22,11 @@ class PlayerControls extends StatelessWidget {
     return ValueListenableBuilder<int?>(
       valueListenable: playerService.currentTrackId,
       builder: (context, currentId, _) {
-        final isActive = trackId == null
+        final isActive = track == null
             ? currentId != null
-            : currentId == trackId;
+            : currentId == track?.id;
 
-        final VoidCallback? onPlay = trackId == null
+        final VoidCallback? onPlay = track == null
             ? (isActive ? _onPlayPressed : null)
             : _onPlayPressed;
 
@@ -70,9 +71,9 @@ class PlayerControls extends StatelessWidget {
               stream: playerService.durationStream,
               initialData: Duration.zero,
               builder: (context, durSnap) {
-                final dur = isActive
-                    ? (durSnap.data ?? Duration.zero)
-                    : Duration.zero;
+                final dur = track != null
+                    ? Duration(seconds: track!.audio!.duration!)
+                    : durSnap.data ?? Duration.zero;
                 return Text(formatDurationMinutesSeconds(dur));
               },
             ),

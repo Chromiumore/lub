@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
+import 'package:lub/features/tracks/domain/entities/track.dart';
 
 class PlayerSlider extends StatelessWidget {
-  const PlayerSlider({super.key, required this.playerService, this.trackId});
+  const PlayerSlider({super.key, required this.playerService, this.track});
 
   final AudioPlayerService playerService;
-
-  final int? trackId;
+  final Track? track;
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<int?>(
       valueListenable: playerService.currentTrackId,
       builder: (context, currentId, _) {
-        final isActive = trackId == null
+        final isActive = track == null
             ? currentId != null
-            : currentId == trackId;
+            : currentId == track?.id;
 
         if (!isActive) {
           return const Slider(min: 0, max: 1, value: 0, onChanged: null);
