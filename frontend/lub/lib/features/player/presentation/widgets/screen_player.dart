@@ -23,7 +23,7 @@ class ScreenPlayer extends StatelessWidget {
               width: 300,
             ),
             Text(track.name!, style: const TextStyle(fontSize: 20)),
-            Text(track.author!.username),
+            Text(track.author!.username!),
             PlayerSlider(playerService: playerService, trackId: track.id),
             Padding(
               padding: const EdgeInsets.only(left: 25, right: 25),

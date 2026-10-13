@@ -7,12 +7,8 @@ class CreateTrackRequest implements RequestModel {
 
   const CreateTrackRequest({required this.name, required this.authorId});
 
-  @override
   factory CreateTrackRequest.fromEntity(Track track) {
-    return CreateTrackRequest(
-      name: track.name!,
-      authorId: 1
-    );
+    return CreateTrackRequest(name: track.name!, authorId: 1);
   }
 
   @override
@@ -22,7 +18,7 @@ class CreateTrackRequest implements RequestModel {
       'author_id': authorId,
       // Will be removed later after api update
       'listens': 0,
-      'track_length': 180
+      'track_length': 180,
     };
   }
 }

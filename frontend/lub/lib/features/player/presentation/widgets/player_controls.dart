@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
+import 'package:lub/shared/utils/timer_formatter.dart';
 
 class PlayerControls extends StatelessWidget {
   const PlayerControls({super.key, required this.playerService, this.trackId});
 
   final AudioPlayerService playerService;
   final int? trackId;
-
-  String _format(Duration d) {
-    final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$m:$s';
-  }
 
   Future<void> _onPlayPressed() async {
     if (trackId == null) {
@@ -44,7 +39,7 @@ class PlayerControls extends StatelessWidget {
                 final pos = isActive
                     ? (posSnap.data ?? Duration.zero)
                     : Duration.zero;
-                return Text(_format(pos));
+                return Text(formatDurationMinutesSeconds(pos));
               },
             ),
             StreamBuilder<bool>(
@@ -78,7 +73,7 @@ class PlayerControls extends StatelessWidget {
                 final dur = isActive
                     ? (durSnap.data ?? Duration.zero)
                     : Duration.zero;
-                return Text(_format(dur));
+                return Text(formatDurationMinutesSeconds(dur));
               },
             ),
           ],
