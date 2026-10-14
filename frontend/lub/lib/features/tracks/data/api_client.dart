@@ -32,15 +32,29 @@ class ApiClient {
     return Future.value(tracks);
   }
 
-  Future<void> postTracks(CreateTrackRequest trackModel, String path) async {
+  Future<void> postTracks({
+    required CreateTrackRequest trackModel,
+    required String audioFilePath,
+    required int authorId,
+    String? coverImageFilePath,
+  }) async {
+    Map<String, dynamic> data = {
+      'audio_file': await MultipartFile.fromFile(
+        audioFilePath,
+        filename: audioFilePath.split('/').last,
+      ),
+      'track': jsonEncode(trackModel.toMap()),
+    };
+
+    if (coverImageFilePath != null) {
+      data['cover_image'] = await MultipartFile.fromFile(
+        coverImageFilePath,
+        filename: coverImageFilePath.split('/').last,
+      );
+    }
+
     try {
-      FormData formData = FormData.fromMap({
-        'audio_file': await MultipartFile.fromFile(
-          path,
-          filename: path.split('/').last,
-        ),
-        'track': jsonEncode(trackModel.toMap()),
-      });
+      FormData formData = FormData.fromMap(data);
       await _dio.post('/music/', data: formData);
     } on DioException catch (e) {
       if (e.response != null) {

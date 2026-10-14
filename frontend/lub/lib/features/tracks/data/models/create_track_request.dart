@@ -8,7 +8,7 @@ class CreateTrackRequest implements RequestModel {
   const CreateTrackRequest({required this.name, required this.authorId});
 
   factory CreateTrackRequest.fromEntity(Track track) {
-    return CreateTrackRequest(name: track.name!, authorId: 1);
+    return CreateTrackRequest(name: track.name!, authorId: track.author!.id!);
   }
 
   @override

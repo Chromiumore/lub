@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:lub/features/tracks/data/repositories/track_repository.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
+import 'package:lub/shared/entities/user.dart';
 
 class UploadTrackScreen extends StatefulWidget {
   const UploadTrackScreen({super.key});
@@ -15,18 +16,32 @@ class UploadTrackScreen extends StatefulWidget {
 class _UploadTrackScreenState extends State<UploadTrackScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  File? _trackFile;
+  final TextEditingController _authorController = TextEditingController();
+  File? _audioFile;
+  File? _coverImageFile;
 
   final TrackRepository _trackRepository = TrackRepository();
 
-  Future<void> _pickFile() async {
+  Future<void> _pickAudioFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.audio,
     );
 
     if (result != null) {
       setState(() {
-        _trackFile = File(result.files.single.path!);
+        _audioFile = File(result.files.single.path!);
+      });
+    }
+  }
+
+  Future<void> _pickCoverImageFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    if (result != null) {
+      setState(() {
+        _coverImageFile = File(result.files.single.path!);
       });
     }
   }
@@ -42,21 +57,56 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: InputDecoration(
-                label: Text('Title'),
-              ),
+              decoration: InputDecoration(label: Text('Title')),
+            ),
+            TextFormField(
+              controller: _authorController,
+              decoration: InputDecoration(label: Text('Author ID')),
             ),
 
-            Container(
-              alignment: Alignment.centerLeft,
-              child: ElevatedButton(
-                onPressed: _pickFile,
-                child: const Text('Pick File'),
-              ),
+            Row(
+              children: [
+                SizedBox(
+                  width: 150,
+                  height: 70,
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: _pickAudioFile,
+                        child: const Text('Pick File'),
+                      ),
+                      Text(
+                        _audioFile != null
+                            ? _audioFile!.path.split('\\').last
+                            : '',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 150,
+                  height: 70,
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: _pickCoverImageFile,
+                        child: const Text('Pick Cover'),
+                      ),
+                      Text(
+                        _coverImageFile != null
+                            ? _coverImageFile!.path.split('\\').last
+                            : '',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             FormField<File>(
               validator: (value) {
-                if (_trackFile == null) {
+                if (_audioFile == null) {
                   return 'We wanna hear it';
                 }
                 return null;
@@ -66,20 +116,28 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                   return Text(state.errorText!);
                 }
                 return Container();
-              }
+              },
             ),
 
             ElevatedButton(
               onPressed: () async {
-                Track track = Track(name: _nameController.text);
-                String path = _trackFile!.path;
-                
-                _trackRepository.createTrack(track, path);
+                Track track = Track(
+                  name: _nameController.text,
+                  author: User(id: int.tryParse(_authorController.text)),
+                );
+                String audioPath = _audioFile!.path;
+                String? coverPath = _coverImageFile?.path;
+
+                _trackRepository.createTrack(
+                  track: track,
+                  audioFilePath: audioPath,
+                  coverImageFilePath: coverPath,
+                );
               },
-              child: Text('Send')
+              child: Text('Send'),
             ),
           ],
-        )
+        ),
       ),
     );
   }
@@ -87,6 +145,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _authorController.dispose();
     super.dispose();
   }
 }
