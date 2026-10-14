@@ -58,22 +58,50 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
             TextFormField(
               controller: _nameController,
               decoration: InputDecoration(label: Text('Title')),
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Title is required';
+
+                return null;
+              },
             ),
             TextFormField(
               controller: _authorController,
               decoration: InputDecoration(label: Text('Author ID')),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Author id is required';
+                }
+                if (int.tryParse(value) == null) {
+                  return 'Id must be a not negative integer';
+                }
+
+                return null;
+              },
             ),
 
             Row(
               children: [
                 SizedBox(
                   width: 150,
-                  height: 70,
                   child: Column(
                     children: [
                       ElevatedButton(
                         onPressed: _pickAudioFile,
-                        child: const Text('Pick File'),
+                        child: const Text('Pick Audio'),
+                      ),
+                      FormField<File>(
+                        validator: (value) {
+                          if (_audioFile == null) {
+                            return 'We wanna hear it';
+                          }
+                          return null;
+                        },
+                        builder: (FormFieldState<File> state) {
+                          if (state.errorText != null) {
+                            return Text(state.errorText!);
+                          }
+                          return Container();
+                        },
                       ),
                       Text(
                         _audioFile != null
@@ -86,7 +114,6 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                 ),
                 SizedBox(
                   width: 150,
-                  height: 70,
                   child: Column(
                     children: [
                       ElevatedButton(
@@ -104,23 +131,11 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                 ),
               ],
             ),
-            FormField<File>(
-              validator: (value) {
-                if (_audioFile == null) {
-                  return 'We wanna hear it';
-                }
-                return null;
-              },
-              builder: (FormFieldState<File> state) {
-                if (state.errorText != null) {
-                  return Text(state.errorText!);
-                }
-                return Container();
-              },
-            ),
 
             ElevatedButton(
               onPressed: () async {
+                if (!_formKey.currentState!.validate()) return;
+
                 Track track = Track(
                   name: _nameController.text,
                   author: User(id: int.tryParse(_authorController.text)),
