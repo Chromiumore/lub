@@ -32,7 +32,7 @@ class ApiClient {
     return Future.value(tracks);
   }
 
-  Future<void> postTracks({
+  Future<TrackResponse> postTracks({
     required CreateTrackRequest trackModel,
     required String audioFilePath,
     required int authorId,
@@ -55,7 +55,9 @@ class ApiClient {
 
     try {
       FormData formData = FormData.fromMap(data);
-      await _dio.post('/music/', data: formData);
+      var response = await _dio.post('/music/', data: formData);
+      TrackResponse track = TrackResponse.fromMap(response.data!);
+      return Future.value(track);
     } on DioException catch (e) {
       if (e.response != null) {
         print('Status Code: ${e.response?.statusCode}');

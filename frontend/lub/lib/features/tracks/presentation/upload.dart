@@ -17,8 +17,10 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _authorController = TextEditingController();
+
   File? _audioFile;
   File? _coverImageFile;
+  bool _isLoading = false;
 
   final TrackRepository _trackRepository = TrackRepository();
 
@@ -43,6 +45,53 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
       setState(() {
         _coverImageFile = File(result.files.single.path!);
       });
+    }
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    final track = Track(
+      name: _nameController.text,
+      author: User(id: int.tryParse(_authorController.text)),
+    );
+
+    try {
+      await _trackRepository.createTrack(
+        track: track,
+        audioFilePath: _audioFile!.path,
+        coverImageFilePath: _coverImageFile?.path,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Track uploaded'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      _formKey.currentState?.reset();
+      _nameController.clear();
+      _authorController.clear();
+      setState(() {
+        _audioFile = null;
+        _coverImageFile = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Uploading error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -100,7 +149,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                           if (state.errorText != null) {
                             return Text(state.errorText!);
                           }
-                          return Container();
+                          return SizedBox.shrink();
                         },
                       ),
                       Text(
@@ -133,23 +182,14 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
             ),
 
             ElevatedButton(
-              onPressed: () async {
-                if (!_formKey.currentState!.validate()) return;
-
-                Track track = Track(
-                  name: _nameController.text,
-                  author: User(id: int.tryParse(_authorController.text)),
-                );
-                String audioPath = _audioFile!.path;
-                String? coverPath = _coverImageFile?.path;
-
-                _trackRepository.createTrack(
-                  track: track,
-                  audioFilePath: audioPath,
-                  coverImageFilePath: coverPath,
-                );
-              },
-              child: Text('Send'),
+              onPressed: _isLoading ? null : _submit,
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(),
+                    )
+                  : Text('Send'),
             ),
           ],
         ),

@@ -40,7 +40,7 @@ final router = GoRouter(
         ),
         GoRoute(
           path: '/upload',
-          builder: (context, state) => UploadTrackScreen(),
+          builder: (context, state) => Scaffold(body: UploadTrackScreen()),
         ),
       ],
     ),
