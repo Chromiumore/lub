@@ -106,6 +106,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
           children: [
             TextFormField(
               controller: _nameController,
+              enabled: !_isLoading,
               decoration: InputDecoration(label: Text('Title')),
               validator: (value) {
                 if (value == null || value.isEmpty) return 'Title is required';
@@ -115,6 +116,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
             ),
             TextFormField(
               controller: _authorController,
+              enabled: !_isLoading,
               decoration: InputDecoration(label: Text('Author ID')),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -135,7 +137,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                   child: Column(
                     children: [
                       ElevatedButton(
-                        onPressed: _pickAudioFile,
+                        onPressed: _isLoading ? null : _pickAudioFile,
                         child: const Text('Pick Audio'),
                       ),
                       FormField<File>(
@@ -147,7 +149,10 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                         },
                         builder: (FormFieldState<File> state) {
                           if (state.errorText != null) {
-                            return Text(state.errorText!);
+                            return Text(
+                              state.errorText!,
+                              style: TextStyle(color: Colors.red),
+                            );
                           }
                           return SizedBox.shrink();
                         },
@@ -166,7 +171,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                   child: Column(
                     children: [
                       ElevatedButton(
-                        onPressed: _pickCoverImageFile,
+                        onPressed: _isLoading ? null : _pickCoverImageFile,
                         child: const Text('Pick Cover'),
                       ),
                       Text(
