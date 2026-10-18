@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:path/path.dart' as p;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -158,9 +159,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                         },
                       ),
                       Text(
-                        _audioFile != null
-                            ? _audioFile!.path.split('\\').last
-                            : '',
+                        _audioFile != null ? p.basename(_audioFile!.path) : '',
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -176,7 +175,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                       ),
                       Text(
                         _coverImageFile != null
-                            ? _coverImageFile!.path.split('\\').last
+                            ? p.basename(_coverImageFile!.path)
                             : '',
                         overflow: TextOverflow.ellipsis,
                       ),
