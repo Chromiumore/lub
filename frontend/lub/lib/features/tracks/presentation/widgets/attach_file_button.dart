@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 class AttachFileButton extends StatelessWidget {
   const AttachFileButton({
+    super.key,
     required this.file,
     required this.onAttach,
     required this.onDetach,
