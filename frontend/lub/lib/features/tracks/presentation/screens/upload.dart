@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:lub/features/tracks/presentation/widgets/attach_file_button.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:file_picker/file_picker.dart';
@@ -137,9 +138,14 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                   width: 150,
                   child: Column(
                     children: [
-                      ElevatedButton(
-                        onPressed: _isLoading ? null : _pickAudioFile,
-                        child: const Text('Pick Audio'),
+                      AttachFileButton(
+                        file: _audioFile,
+                        onAttach: _pickAudioFile,
+                        onDetach: () => setState(() => _audioFile = null),
+                        attachLabel: 'Pick audio',
+                        detachLabel: 'Remove audio',
+                        attachIcon: Icons.audiotrack,
+                        enabled: !_isLoading,
                       ),
                       FormField<File>(
                         validator: (value) {
@@ -169,9 +175,14 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
                   width: 150,
                   child: Column(
                     children: [
-                      ElevatedButton(
-                        onPressed: _isLoading ? null : _pickCoverImageFile,
-                        child: const Text('Pick Cover'),
+                      AttachFileButton(
+                        file: _coverImageFile,
+                        onAttach: _pickCoverImageFile,
+                        onDetach: () => setState(() => _coverImageFile = null),
+                        attachLabel: 'Pick cover',
+                        detachLabel: 'Remove cover',
+                        attachIcon: Icons.image_outlined,
+                        enabled: !_isLoading,
                       ),
                       Text(
                         _coverImageFile != null

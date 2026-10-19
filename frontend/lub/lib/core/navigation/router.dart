@@ -1,11 +1,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
-import 'package:lub/features/tracks/presentation/upload.dart';
-
-import '../../features/tracks/presentation/home.dart';
-import '../../features/tracks/presentation/track.dart';
-import '../../features/player/presentation/widgets/mini_player.dart';
-import '../widgets/navigation_sidebar.dart';
+import 'package:lub/core/widgets/navigation_sidebar.dart';
+import 'package:lub/features/player/presentation/widgets/mini_player.dart';
+import 'package:lub/features/tracks/presentation/screens/home.dart';
+import 'package:lub/features/tracks/presentation/screens/track.dart';
+import 'package:lub/features/tracks/presentation/screens/upload.dart';
 
 final router = GoRouter(
   routes: [

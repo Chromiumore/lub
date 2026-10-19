@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lub/features/player/presentation/widgets/screen_player.dart';
 import 'package:lub/features/tracks/data/repositories/track_repository.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
-
-import '../../player/presentation/widgets/screen_player.dart';
 
 class TrackScreen extends StatefulWidget {
   final int trackID;
@@ -45,11 +44,9 @@ class _TrackScreenState extends State<TrackScreen> {
             ),
           );
         } else {
-          return Center(
-            child: Text('No data found'),
-          );
+          return Center(child: Text('No data found'));
         }
-      }
+      },
     );
   }
 }
