@@ -4,9 +4,10 @@ import 'package:lub/shared/entities/user.dart';
 
 class Track extends Entity {
   final int? id;
-  final String? name;
-  final User? author;
-  final FileMeta? audio;
+  String? name;
+  User? author;
+  FileMeta? audio;
+  bool hasCover;
 
-  Track({this.id, this.name, this.author, this.audio});
+  Track({this.id, this.name, this.author, this.audio, this.hasCover = false});
 }

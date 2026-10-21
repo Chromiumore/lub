@@ -1,6 +1,7 @@
-import 'package:file_picker/file_picker.dart';
+import 'package:collection/collection.dart';
 import 'package:lub/features/tracks/data/models/file_meta_response.dart';
 import 'package:lub/features/tracks/domain/entities/file_meta.dart';
+import 'package:lub/features/tracks/domain/entities/file_type.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/shared/entities/user.dart';
 import 'package:lub/shared/models/response_model.dart';
@@ -47,6 +48,11 @@ class TrackResponse implements ResponseModel {
                   )
                   .toEntity()
               as FileMeta,
+      hasCover:
+          files.firstWhereOrNull(
+            (f) => FileType.values.byName(f.fileType) == FileType.cover,
+          ) !=
+          null,
     );
   }
 }

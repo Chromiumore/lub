@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lub/features/tracks/data/api_client.dart';
@@ -5,6 +6,8 @@ import 'package:lub/features/tracks/data/api_client.dart';
 import 'package:lub/features/tracks/data/repositories/track_repository.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/shared/utils/timer_formatter.dart';
+import 'package:lub/shared/widgets/cover_image_placeholder.dart';
+import 'package:lub/shared/widgets/network_cover_image.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -56,12 +59,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemBuilder: (context, index) {
                       final track = snapshot.data![index];
                       return ListTile(
-                        leading: FadeInImage.assetNetwork(
-                          image: _api.getCoverDownloadUrl(track.id!),
-                          placeholder: 'assets/images/photosintesis.jpg',
+                        leading: SizedBox(
                           height: 50,
                           width: 50,
-                          fit: BoxFit.fill,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: track.hasCover
+                                ? NetworkCoverImage(
+                                    _api.getCoverDownloadUrl(track.id!),
+                                  )
+                                : CoverImagePlaceholder(),
+                          ),
                         ),
                         title: Text(track.name!),
                         subtitle: Text(track.author!.username!),
