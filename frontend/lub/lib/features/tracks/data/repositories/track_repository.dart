@@ -1,6 +1,7 @@
 import 'package:lub/features/tracks/data/api_client.dart';
 import 'package:lub/features/tracks/data/models/create_track_request.dart';
 import 'package:lub/features/tracks/data/models/track_response.dart';
+import 'package:lub/features/tracks/data/models/update_track_request.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 
 class TrackRepository {
@@ -27,6 +28,14 @@ class TrackRepository {
       audioFilePath: audioFilePath,
       authorId: 1,
       coverImageFilePath: coverImageFilePath,
+    );
+
+    return model.toEntity();
+  }
+
+  Future<Track> updateTrack({required Track track}) async {
+    var model = await api.putTrack(
+      updateModel: UpdateTrackRequest.fromEntity(track),
     );
 
     return model.toEntity();

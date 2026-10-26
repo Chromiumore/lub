@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
 import 'package:lub/features/player/presentation/widgets/player_controls.dart';

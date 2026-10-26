@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lub/features/tracks/data/api_client.dart';
@@ -8,6 +7,8 @@ import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/shared/utils/timer_formatter.dart';
 import 'package:lub/shared/widgets/cover_image_placeholder.dart';
 import 'package:lub/shared/widgets/network_cover_image.dart';
+
+enum _TrackPopupMenuAction { EDIT_INFO, CHANGE_AUDIO, CHANGE_COVER, DELETE }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -73,10 +74,66 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         title: Text(track.name!),
                         subtitle: Text(track.author!.username!),
-                        trailing: Text(
-                          formatDurationMinutesSeconds(
-                            Duration(seconds: track.audio!.duration!),
-                          ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PopupMenuButton(
+                              onSelected: (_TrackPopupMenuAction item) {
+                                switch (item) {
+                                  case _TrackPopupMenuAction.EDIT_INFO:
+                                    context.go(
+                                      '/music/${track.id!}/update',
+                                      extra: track,
+                                    );
+                                    break;
+                                  default:
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                PopupMenuItem<_TrackPopupMenuAction>(
+                                  value: _TrackPopupMenuAction.EDIT_INFO,
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.edit),
+                                      Text('Edit Info'),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem<_TrackPopupMenuAction>(
+                                  value: _TrackPopupMenuAction.CHANGE_AUDIO,
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.audio_file),
+                                      Text('Change Audio'),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem<_TrackPopupMenuAction>(
+                                  value: _TrackPopupMenuAction.CHANGE_COVER,
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.image),
+                                      Text('Change Cover'),
+                                    ],
+                                  ),
+                                ),
+                                PopupMenuItem<_TrackPopupMenuAction>(
+                                  value: _TrackPopupMenuAction.DELETE,
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.delete),
+                                      Text('Delete'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              formatDurationMinutesSeconds(
+                                Duration(seconds: track.audio!.duration!),
+                              ),
+                            ),
+                          ],
                         ),
                         onTap: () => context.go('/music/${track.id}'),
                       );

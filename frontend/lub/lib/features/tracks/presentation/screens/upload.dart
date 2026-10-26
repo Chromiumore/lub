@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:lub/features/tracks/presentation/widgets/attach_file_button.dart';
+import 'package:lub/features/tracks/presentation/widgets/track_title_form_field.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:file_picker/file_picker.dart';
@@ -106,15 +107,9 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
         child: Column(
           spacing: 20.0,
           children: [
-            TextFormField(
+            TrackTitleFormField(
               controller: _nameController,
               enabled: !_isLoading,
-              decoration: InputDecoration(label: Text('Title')),
-              validator: (value) {
-                if (value == null || value.isEmpty) return 'Title is required';
-
-                return null;
-              },
             ),
             TextFormField(
               controller: _authorController,

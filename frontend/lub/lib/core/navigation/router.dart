@@ -2,8 +2,10 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:lub/core/widgets/navigation_sidebar.dart';
 import 'package:lub/features/player/presentation/widgets/mini_player.dart';
+import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/features/tracks/presentation/screens/home.dart';
 import 'package:lub/features/tracks/presentation/screens/track.dart';
+import 'package:lub/features/tracks/presentation/screens/update_track.dart';
 import 'package:lub/features/tracks/presentation/screens/upload.dart';
 
 final router = GoRouter(
@@ -33,13 +35,22 @@ final router = GoRouter(
           ],
         ),
         GoRoute(
-          path: '/music/:trackID',
+          path: '/music/:trackId',
           builder: (context, state) =>
-              TrackScreen(trackID: int.parse(state.pathParameters['trackID']!)),
+              TrackScreen(trackID: int.parse(state.pathParameters['trackId']!)),
         ),
         GoRoute(
           path: '/upload',
           builder: (context, state) => Scaffold(body: UploadTrackScreen()),
+        ),
+        GoRoute(
+          path: '/music/:trackId/update',
+          builder: (context, state) => Scaffold(
+            body: UpdateTrackScreen(
+              trackId: int.parse(state.pathParameters['trackId']!),
+              track: state.extra as Track?,
+            ),
+          ),
         ),
       ],
     ),

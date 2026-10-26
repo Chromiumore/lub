@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:lub/features/tracks/data/models/create_track_request.dart';
 import 'package:lub/features/tracks/data/models/track_response.dart';
+import 'package:lub/features/tracks/data/models/update_track_request.dart';
 
 class ApiClient {
   final String _host = 'localhost';
@@ -66,6 +67,17 @@ class ApiClient {
       }
       rethrow;
     }
+  }
+
+  Future<TrackResponse> putTrack({
+    required UpdateTrackRequest updateModel,
+  }) async {
+    var response = await _dio.put(
+      '/music/${updateModel.id}',
+      data: updateModel.toMap(),
+    );
+    TrackResponse track = TrackResponse.fromMap(response.data!);
+    return Future.value(track);
   }
 
   String getCoverDownloadUrl(int trackId) {
