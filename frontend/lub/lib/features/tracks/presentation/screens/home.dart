@@ -8,7 +8,7 @@ import 'package:lub/shared/utils/timer_formatter.dart';
 import 'package:lub/shared/widgets/cover_image_placeholder.dart';
 import 'package:lub/shared/widgets/network_cover_image.dart';
 
-enum _TrackPopupMenuAction { EDIT_INFO, CHANGE_AUDIO, CHANGE_COVER, DELETE }
+enum _TrackPopupMenuAction { editInfo, changeAudio, changeCover, delete }
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -108,13 +108,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               offset: Offset(-50, 0),
                               onSelected: (_TrackPopupMenuAction item) {
                                 switch (item) {
-                                  case _TrackPopupMenuAction.EDIT_INFO:
+                                  case _TrackPopupMenuAction.editInfo:
                                     context.push(
                                       '/music/${track.id!}/update',
                                       extra: track,
                                     );
                                     break;
-                                  case _TrackPopupMenuAction.DELETE:
+                                  case _TrackPopupMenuAction.delete:
                                     _deleteTrack(track.id!);
                                     break;
                                   default:
@@ -122,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               itemBuilder: (context) => [
                                 PopupMenuItem<_TrackPopupMenuAction>(
-                                  value: _TrackPopupMenuAction.EDIT_INFO,
+                                  value: _TrackPopupMenuAction.editInfo,
                                   child: Row(
                                     children: [
                                       Icon(Icons.edit),
@@ -131,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 PopupMenuItem<_TrackPopupMenuAction>(
-                                  value: _TrackPopupMenuAction.CHANGE_AUDIO,
+                                  value: _TrackPopupMenuAction.changeAudio,
                                   child: Row(
                                     children: [
                                       Icon(Icons.audio_file),
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 PopupMenuItem<_TrackPopupMenuAction>(
-                                  value: _TrackPopupMenuAction.CHANGE_COVER,
+                                  value: _TrackPopupMenuAction.changeCover,
                                   child: Row(
                                     children: [
                                       Icon(Icons.image),
@@ -149,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 PopupMenuItem<_TrackPopupMenuAction>(
-                                  value: _TrackPopupMenuAction.DELETE,
+                                  value: _TrackPopupMenuAction.delete,
                                   child: Row(
                                     children: [
                                       Icon(Icons.delete, color: Colors.red),
