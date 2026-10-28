@@ -40,4 +40,8 @@ class TrackRepository {
 
     return model.toEntity();
   }
+
+  Future<void> deleteTrack(int id) async {
+    await api.deleteTrack(id);
+  }
 }

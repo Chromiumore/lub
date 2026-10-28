@@ -25,11 +25,34 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _init();
+    _tracks = _trackRepository.getTracks();
   }
 
-  void _init() async {
-    _tracks = _trackRepository.getTracks();
+  Future<void> _deleteTrack(int id) async {
+    try {
+      await _trackRepository.deleteTrack(id);
+
+      if (!mounted) return;
+      setState(() {
+        _tracks = _trackRepository.getTracks();
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Track has been deleted'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error while deleting: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -43,7 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.only(bottom: 10),
             child: ElevatedButton(
               child: Icon(Icons.refresh),
-              onPressed: () => context.push('/'),
+              onPressed: () {
+                setState(() {
+                  _tracks = _trackRepository.getTracks();
+                });
+              },
             ),
           ),
           Expanded(
@@ -78,13 +105,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             PopupMenuButton(
+                              offset: Offset(-50, 0),
                               onSelected: (_TrackPopupMenuAction item) {
                                 switch (item) {
                                   case _TrackPopupMenuAction.EDIT_INFO:
-                                    context.go(
+                                    context.push(
                                       '/music/${track.id!}/update',
                                       extra: track,
                                     );
+                                    break;
+                                  case _TrackPopupMenuAction.DELETE:
+                                    _deleteTrack(track.id!);
                                     break;
                                   default:
                                 }
@@ -121,8 +152,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                   value: _TrackPopupMenuAction.DELETE,
                                   child: Row(
                                     children: [
-                                      Icon(Icons.delete),
-                                      Text('Delete'),
+                                      Icon(Icons.delete, color: Colors.red),
+                                      Text(
+                                        'Delete',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
                                     ],
                                   ),
                                 ),

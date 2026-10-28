@@ -80,6 +80,10 @@ class ApiClient {
     return Future.value(track);
   }
 
+  Future<void> deleteTrack(int id) async {
+    await _dio.delete('/music/$id/');
+  }
+
   String getCoverDownloadUrl(int trackId) {
     return '$baseUrl/music/$trackId/cover';
   }
