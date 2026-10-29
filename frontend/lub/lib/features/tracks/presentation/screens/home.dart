@@ -114,6 +114,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       extra: track,
                                     );
                                     break;
+                                  case _TrackPopupMenuAction.changeAudio:
+                                    context.push(
+                                      '/music/${track.id!}/audio/update',
+                                    );
+                                    break;
                                   case _TrackPopupMenuAction.delete:
                                     _deleteTrack(track.id!);
                                     break;

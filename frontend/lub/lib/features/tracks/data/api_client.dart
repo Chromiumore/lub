@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:path/path.dart' as p;
 import 'package:dio/dio.dart';
 import 'package:lub/features/tracks/data/models/create_track_request.dart';
 import 'package:lub/features/tracks/data/models/track_response.dart';
@@ -78,6 +78,20 @@ class ApiClient {
     );
     TrackResponse track = TrackResponse.fromMap(response.data!);
     return Future.value(track);
+  }
+
+  Future<void> putAudio({
+    required int trackId,
+    required String audioFilePath,
+  }) async {
+    Map<String, dynamic> data = {
+      'file': await MultipartFile.fromFile(
+        audioFilePath,
+        filename: p.basename(audioFilePath),
+      ),
+    };
+
+    await _dio.put('/music/$trackId/audio', data: FormData.fromMap(data));
   }
 
   Future<void> deleteTrack(int id) async {

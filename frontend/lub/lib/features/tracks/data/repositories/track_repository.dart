@@ -41,6 +41,13 @@ class TrackRepository {
     return model.toEntity();
   }
 
+  Future<void> updateAudio({
+    required int trackId,
+    required String audioFilePath,
+  }) async {
+    await api.putAudio(trackId: trackId, audioFilePath: audioFilePath);
+  }
+
   Future<void> deleteTrack(int id) async {
     await api.deleteTrack(id);
   }
