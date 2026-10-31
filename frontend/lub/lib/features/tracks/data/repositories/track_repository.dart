@@ -48,6 +48,16 @@ class TrackRepository {
     await api.putAudio(trackId: trackId, audioFilePath: audioFilePath);
   }
 
+  Future<void> updateCover({
+    required int trackId,
+    required String coverImageFilePath,
+  }) async {
+    await api.putCover(
+      trackId: trackId,
+      coverImageFilePath: coverImageFilePath,
+    );
+  }
+
   Future<void> deleteTrack(int id) async {
     await api.deleteTrack(id);
   }

@@ -6,6 +6,7 @@ import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/features/tracks/presentation/screens/home.dart';
 import 'package:lub/features/tracks/presentation/screens/track.dart';
 import 'package:lub/features/tracks/presentation/screens/update_audio.dart';
+import 'package:lub/features/tracks/presentation/screens/update_cover.dart';
 import 'package:lub/features/tracks/presentation/screens/update_track.dart';
 import 'package:lub/features/tracks/presentation/screens/upload.dart';
 
@@ -57,6 +58,14 @@ final router = GoRouter(
           path: '/music/:trackId/audio/update',
           builder: (context, state) => Scaffold(
             body: UpdateTrackAudioScreen(
+              trackId: int.parse(state.pathParameters['trackId']!),
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/music/:trackId/cover/update',
+          builder: (context, state) => Scaffold(
+            body: UpdateTrackCoverScreen(
               trackId: int.parse(state.pathParameters['trackId']!),
             ),
           ),

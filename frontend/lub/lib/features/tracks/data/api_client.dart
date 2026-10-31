@@ -94,6 +94,20 @@ class ApiClient {
     await _dio.put('/music/$trackId/audio', data: FormData.fromMap(data));
   }
 
+  Future<void> putCover({
+    required int trackId,
+    required String coverImageFilePath,
+  }) async {
+    Map<String, dynamic> data = {
+      'file': await MultipartFile.fromFile(
+        coverImageFilePath,
+        filename: p.basename(coverImageFilePath),
+      ),
+    };
+
+    await _dio.put('/music/$trackId/cover', data: FormData.fromMap(data));
+  }
+
   Future<void> deleteTrack(int id) async {
     await _dio.delete('/music/$id/');
   }

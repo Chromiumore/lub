@@ -119,10 +119,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                       '/music/${track.id!}/audio/update',
                                     );
                                     break;
+                                  case _TrackPopupMenuAction.changeCover:
+                                    context.push(
+                                      '/music/${track.id!}/cover/update',
+                                    );
+                                    break;
                                   case _TrackPopupMenuAction.delete:
                                     _deleteTrack(track.id!);
                                     break;
-                                  default:
                                 }
                               },
                               itemBuilder: (context) => [
