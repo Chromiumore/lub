@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lub/features/tracks/data/api_client.dart';
-
 import 'package:lub/features/tracks/data/repositories/track_repository.dart';
+
+import 'package:lub/features/tracks/application/services/track_service.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/shared/utils/timer_formatter.dart';
 import 'package:lub/shared/widgets/cover_image_placeholder.dart';
@@ -19,22 +19,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Track>> _tracks;
+  final TrackService _trackService = TrackService();
   final TrackRepository _trackRepository = TrackRepository();
-  final ApiClient _api = ApiClient();
 
   @override
   void initState() {
     super.initState();
-    _tracks = _trackRepository.getTracks();
+    _tracks = _trackService.getTracks();
   }
 
   Future<void> _deleteTrack(int id) async {
     try {
-      await _trackRepository.deleteTrack(id);
+      await _trackService.deleteTrack(id);
 
       if (!mounted) return;
       setState(() {
-        _tracks = _trackRepository.getTracks();
+        _tracks = _trackService.getTracks();
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Icon(Icons.refresh),
               onPressed: () {
                 setState(() {
-                  _tracks = _trackRepository.getTracks();
+                  _tracks = _trackService.getTracks();
                 });
               },
             ),
@@ -94,7 +94,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(4),
                             child: track.hasCover
                                 ? NetworkCoverImage(
-                                    _api.getCoverDownloadUrl(track.id!),
+                                    _trackRepository.getCoverDownloadUrl(
+                                      track.id!,
+                                    ),
                                   )
                                 : CoverImagePlaceholder(),
                           ),

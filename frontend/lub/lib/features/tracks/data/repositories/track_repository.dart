@@ -1,64 +1,109 @@
-import 'package:lub/features/tracks/data/api_client.dart';
+import 'dart:convert';
+import 'package:lub/core/api/dio_config.dart';
+import 'package:path/path.dart' as p;
+import 'package:dio/dio.dart';
 import 'package:lub/features/tracks/data/models/create_track_request.dart';
 import 'package:lub/features/tracks/data/models/track_response.dart';
 import 'package:lub/features/tracks/data/models/update_track_request.dart';
-import 'package:lub/features/tracks/domain/entities/track.dart';
 
 class TrackRepository {
-  final ApiClient api = ApiClient();
+  final Dio _dio = Dio(BaseOptions(baseUrl: DioConfig.baseUrl));
 
-  Future<Track> getTrack(int trackID) async {
-    TrackResponse model = await api.getTrack(trackID);
-    return model.toEntity();
+  Future<TrackResponse> getTrack(int trackID) async {
+    var response = await _dio.get('/music/$trackID');
+    TrackResponse track = TrackResponse.fromMap(response.data!);
+    return Future.value(track);
   }
 
-  Future<List<Track>> getTracks() async {
-    List<TrackResponse> models = await api.getTracks();
-    List<Track> entities = models.map((item) => item.toEntity()).toList();
-    return entities;
+  Future<List<TrackResponse>> getTracks() async {
+    var response = await _dio.get('/music');
+    final List<dynamic> tracksData = response.data;
+    List<TrackResponse> tracks = tracksData
+        .map((item) => TrackResponse.fromMap(item as Map<String, dynamic>))
+        .toList();
+    return Future.value(tracks);
   }
 
-  Future<Track> createTrack({
-    required Track track,
+  Future<TrackResponse> postTracks({
+    required CreateTrackRequest trackModel,
     required String audioFilePath,
+    required int authorId,
     String? coverImageFilePath,
   }) async {
-    var model = await api.postTracks(
-      trackModel: CreateTrackRequest.fromEntity(track),
-      audioFilePath: audioFilePath,
-      authorId: 1,
-      coverImageFilePath: coverImageFilePath,
-    );
+    Map<String, dynamic> data = {
+      'audio_file': await MultipartFile.fromFile(
+        audioFilePath,
+        filename: audioFilePath.split('/').last,
+      ),
+      'track': jsonEncode(trackModel.toMap()),
+    };
 
-    return model.toEntity();
+    if (coverImageFilePath != null) {
+      data['cover_image'] = await MultipartFile.fromFile(
+        coverImageFilePath,
+        filename: coverImageFilePath.split('/').last,
+      );
+    }
+
+    try {
+      FormData formData = FormData.fromMap(data);
+      var response = await _dio.post('/music/', data: formData);
+      TrackResponse track = TrackResponse.fromMap(response.data!);
+      return Future.value(track);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print('Status Code: ${e.response?.statusCode}');
+        print('Response Data: ${e.response?.data}');
+        print('Response Headers: ${e.response?.headers}');
+      }
+      rethrow;
+    }
   }
 
-  Future<Track> updateTrack({required Track track}) async {
-    var model = await api.putTrack(
-      updateModel: UpdateTrackRequest.fromEntity(track),
+  Future<TrackResponse> putTrack({
+    required UpdateTrackRequest updateModel,
+  }) async {
+    var response = await _dio.put(
+      '/music/${updateModel.id}',
+      data: updateModel.toMap(),
     );
-
-    return model.toEntity();
+    TrackResponse track = TrackResponse.fromMap(response.data!);
+    return Future.value(track);
   }
 
-  Future<void> updateAudio({
+  Future<void> putAudio({
     required int trackId,
     required String audioFilePath,
   }) async {
-    await api.putAudio(trackId: trackId, audioFilePath: audioFilePath);
+    Map<String, dynamic> data = {
+      'file': await MultipartFile.fromFile(
+        audioFilePath,
+        filename: p.basename(audioFilePath),
+      ),
+    };
+
+    await _dio.put('/music/$trackId/audio', data: FormData.fromMap(data));
   }
 
-  Future<void> updateCover({
+  Future<void> putCover({
     required int trackId,
     required String coverImageFilePath,
   }) async {
-    await api.putCover(
-      trackId: trackId,
-      coverImageFilePath: coverImageFilePath,
-    );
+    Map<String, dynamic> data = {
+      'file': await MultipartFile.fromFile(
+        coverImageFilePath,
+        filename: p.basename(coverImageFilePath),
+      ),
+    };
+
+    await _dio.put('/music/$trackId/cover', data: FormData.fromMap(data));
   }
 
   Future<void> deleteTrack(int id) async {
-    await api.deleteTrack(id);
+    await _dio.delete('/music/$id/');
+  }
+
+  String getCoverDownloadUrl(int trackId) {
+    return '${DioConfig.baseUrl}/music/$trackId/cover';
   }
 }

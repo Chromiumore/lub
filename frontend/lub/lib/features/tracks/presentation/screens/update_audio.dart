@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:lub/features/tracks/data/repositories/track_repository.dart';
+import 'package:lub/features/tracks/application/services/track_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
 import 'package:lub/features/tracks/presentation/widgets/attach_file_button.dart';
@@ -19,7 +19,7 @@ class _UpdateTrackAudioScreenState extends State<UpdateTrackAudioScreen> {
   File? _audioFile;
   bool _isLoading = false;
 
-  final TrackRepository _trackRepository = TrackRepository();
+  final TrackService _trackService = TrackService();
 
   Future<void> _pickAudioFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -39,7 +39,7 @@ class _UpdateTrackAudioScreenState extends State<UpdateTrackAudioScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await _trackRepository.updateAudio(
+      await _trackService.updateAudio(
         trackId: widget.trackId,
         audioFilePath: _audioFile!.path,
       );

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
 import 'package:lub/features/player/presentation/widgets/player_controls.dart';
 import 'package:lub/features/player/presentation/widgets/player_slider.dart';
-import 'package:lub/features/tracks/data/api_client.dart';
+import 'package:lub/features/tracks/data/repositories/track_repository.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/shared/widgets/cover_image_placeholder.dart';
 import 'package:lub/shared/widgets/network_cover_image.dart';
@@ -11,7 +11,7 @@ class ScreenPlayer extends StatelessWidget {
   ScreenPlayer({super.key, required this.track});
 
   final Track track;
-  final ApiClient _api = ApiClient();
+  final TrackRepository _repository = TrackRepository();
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,9 @@ class ScreenPlayer extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: track.hasCover
-                    ? NetworkCoverImage(_api.getCoverDownloadUrl(track.id!))
+                    ? NetworkCoverImage(
+                        _repository.getCoverDownloadUrl(track.id!),
+                      )
                     : CoverImagePlaceholder(),
               ),
             ),

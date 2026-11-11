@@ -5,7 +5,7 @@ import 'package:path/path.dart' as p;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:lub/features/tracks/data/repositories/track_repository.dart';
+import 'package:lub/features/tracks/application/services/track_service.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/shared/entities/user.dart';
 
@@ -25,7 +25,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
   File? _coverImageFile;
   bool _isLoading = false;
 
-  final TrackRepository _trackRepository = TrackRepository();
+  final TrackService _trackService = TrackService();
 
   Future<void> _pickAudioFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -62,7 +62,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
     );
 
     try {
-      await _trackRepository.createTrack(
+      await _trackService.createTrack(
         track: track,
         audioFilePath: _audioFile!.path,
         coverImageFilePath: _coverImageFile?.path,

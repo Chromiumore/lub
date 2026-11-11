@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:lub/features/tracks/data/repositories/track_repository.dart';
+import 'package:lub/features/tracks/application/services/track_service.dart';
 import 'package:lub/features/tracks/presentation/widgets/attach_file_button.dart';
 
 class UpdateTrackCoverScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class _UpdateTrackCoverScreenState extends State<UpdateTrackCoverScreen> {
   File? _coverFile;
   bool _isLoading = false;
 
-  final TrackRepository _trackRepository = TrackRepository();
+  final TrackService _trackService = TrackService();
 
   Future<void> _pickCoverFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -39,7 +39,7 @@ class _UpdateTrackCoverScreenState extends State<UpdateTrackCoverScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await _trackRepository.updateCover(
+      await _trackService.updateCover(
         trackId: widget.trackId,
         coverImageFilePath: _coverFile!.path,
       );

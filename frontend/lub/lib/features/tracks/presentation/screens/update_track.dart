@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lub/features/tracks/data/repositories/track_repository.dart';
+import 'package:lub/features/tracks/application/services/track_service.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/features/tracks/presentation/widgets/track_title_form_field.dart';
 
@@ -19,7 +19,7 @@ class _UpdateTrackScreenState extends State<UpdateTrackScreen> {
 
   bool _isLoading = false;
 
-  final TrackRepository _trackRepository = TrackRepository();
+  final TrackService _trackService = TrackService();
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -29,7 +29,7 @@ class _UpdateTrackScreenState extends State<UpdateTrackScreen> {
     final track = Track(name: _nameController.text, id: widget.trackId);
 
     try {
-      await _trackRepository.updateTrack(track: track);
+      await _trackService.updateTrack(track: track);
 
       if (!mounted) return;
 

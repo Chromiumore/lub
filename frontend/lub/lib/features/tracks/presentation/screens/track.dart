@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lub/features/player/presentation/widgets/screen_player.dart';
-import 'package:lub/features/tracks/data/repositories/track_repository.dart';
+import 'package:lub/features/tracks/application/services/track_service.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 
 class TrackScreen extends StatefulWidget {
@@ -14,7 +14,7 @@ class TrackScreen extends StatefulWidget {
 
 class _TrackScreenState extends State<TrackScreen> {
   late Future<Track> _track;
-  final TrackRepository _trackRepository = TrackRepository();
+  final TrackService _trackService = TrackService();
 
   @override
   void initState() {
@@ -23,7 +23,7 @@ class _TrackScreenState extends State<TrackScreen> {
   }
 
   void _init() async {
-    _track = _trackRepository.getTrack(widget.trackID);
+    _track = _trackService.getTrack(widget.trackID);
   }
 
   @override
