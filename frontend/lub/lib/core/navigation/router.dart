@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:lub/core/widgets/navigation_sidebar.dart';
+import 'package:lub/features/auth/presentation/screens/registration_form.dart';
 import 'package:lub/features/player/presentation/widgets/mini_player.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/features/tracks/presentation/screens/home.dart';
@@ -69,6 +70,10 @@ final router = GoRouter(
               trackId: int.parse(state.pathParameters['trackId']!),
             ),
           ),
+        ),
+        GoRoute(
+          path: '/auth/registration',
+          builder: (context, state) => Scaffold(body: RegistrationFormScreen()),
         ),
       ],
     ),
