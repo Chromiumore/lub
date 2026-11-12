@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:lub/core/injection_service.dart';
 
 import 'features/player/application/audio_player_service.dart';
 import 'core/navigation/router.dart';
 
 void main() {
+  InjectionService.configureDependencies();
+  InjectionService.locator<AudioPlayerService>().init();
   runApp(const MyApp());
-  AudioPlayerService.instance.init();
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -23,4 +24,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-  

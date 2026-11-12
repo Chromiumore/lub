@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:lub/core/injection_service.dart';
 import 'package:lub/features/tracks/application/services/track_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class _UpdateTrackAudioScreenState extends State<UpdateTrackAudioScreen> {
   File? _audioFile;
   bool _isLoading = false;
 
-  final TrackService _trackService = TrackService();
+  final TrackService _trackService = InjectionService.locator<TrackService>();
 
   Future<void> _pickAudioFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(

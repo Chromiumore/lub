@@ -3,11 +3,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 
 class AudioPlayerService {
-  final AudioPlayer _player = AudioPlayer();
+  AudioPlayerService(this._player);
 
-  AudioPlayerService._privateConstructor();
-  static final _instance = AudioPlayerService._privateConstructor();
-  static AudioPlayerService get instance => _instance;
+  final AudioPlayer _player;
 
   final ValueNotifier<int?> _currentTrackId = ValueNotifier<int?>(null);
   ValueListenable<int?> get currentTrackId => _currentTrackId;

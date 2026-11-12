@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:lub/core/injection_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class _UpdateTrackCoverScreenState extends State<UpdateTrackCoverScreen> {
   File? _coverFile;
   bool _isLoading = false;
 
-  final TrackService _trackService = TrackService();
+  final TrackService _trackService = InjectionService.locator<TrackService>();
 
   Future<void> _pickCoverFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(

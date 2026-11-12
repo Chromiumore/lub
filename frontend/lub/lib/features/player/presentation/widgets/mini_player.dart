@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lub/core/injection_service.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
 import 'package:lub/features/player/presentation/widgets/player_controls.dart';
 import 'package:lub/features/player/presentation/widgets/player_slider.dart';
@@ -8,7 +9,7 @@ class MiniPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final playerService = AudioPlayerService.instance;
+    final playerService = InjectionService.locator<AudioPlayerService>();
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lub/core/injection_service.dart';
 import 'package:lub/features/tracks/application/services/track_service.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 import 'package:lub/features/tracks/presentation/widgets/track_title_form_field.dart';
@@ -19,7 +20,7 @@ class _UpdateTrackScreenState extends State<UpdateTrackScreen> {
 
   bool _isLoading = false;
 
-  final TrackService _trackService = TrackService();
+  final TrackService _trackService = InjectionService.locator<TrackService>();
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;

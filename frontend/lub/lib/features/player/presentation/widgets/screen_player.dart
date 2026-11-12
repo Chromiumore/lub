@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lub/core/injection_service.dart';
 import 'package:lub/features/player/application/audio_player_service.dart';
 import 'package:lub/features/player/presentation/widgets/player_controls.dart';
 import 'package:lub/features/player/presentation/widgets/player_slider.dart';
@@ -11,11 +12,12 @@ class ScreenPlayer extends StatelessWidget {
   ScreenPlayer({super.key, required this.track});
 
   final Track track;
-  final TrackRepository _repository = TrackRepository();
+  final TrackRepository _repository =
+      InjectionService.locator<TrackRepository>();
 
   @override
   Widget build(BuildContext context) {
-    final playerService = AudioPlayerService.instance;
+    final playerService = InjectionService.locator<AudioPlayerService>();
     return Card(
       child: Padding(
         padding: const EdgeInsets.only(top: 24),

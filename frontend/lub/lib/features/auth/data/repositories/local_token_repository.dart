@@ -2,14 +2,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:lub/features/auth/data/models/tokens_response.dart';
 
 class LocalTokenRepository {
-  LocalTokenRepository._privateConstructor();
-  static final _instance = LocalTokenRepository._privateConstructor();
-  static LocalTokenRepository get instance => _instance;
+  LocalTokenRepository(this._storage);
 
-  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  final FlutterSecureStorage _storage;
 
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
+
+  Future<bool> get hasAccessToken async =>
+      await _storage.containsKey(key: _accessTokenKey);
 
   Future<void> saveTokens(TokensResponse tokens) async {
     saveAccessToken(tokens.accessToken);

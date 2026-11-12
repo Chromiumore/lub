@@ -5,9 +5,9 @@ import 'package:lub/features/auth/data/repositories/local_token_repository.dart'
 class AuthInterceptor extends QueuedInterceptorsWrapper {
   final Dio _dio;
   final Dio _refreshDio;
-  final LocalTokenRepository _service = LocalTokenRepository.instance;
+  final LocalTokenRepository _service;
 
-  AuthInterceptor(this._dio)
+  AuthInterceptor(this._dio, this._service)
     : _refreshDio = Dio(BaseOptions(baseUrl: _dio.options.baseUrl));
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lub/core/injection_service.dart';
 import 'package:lub/features/player/presentation/widgets/screen_player.dart';
 import 'package:lub/features/tracks/application/services/track_service.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
@@ -14,7 +15,7 @@ class TrackScreen extends StatefulWidget {
 
 class _TrackScreenState extends State<TrackScreen> {
   late Future<Track> _track;
-  final TrackService _trackService = TrackService();
+  final TrackService _trackService = InjectionService.locator<TrackService>();
 
   @override
   void initState() {

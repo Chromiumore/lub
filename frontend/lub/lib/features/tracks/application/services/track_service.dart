@@ -5,7 +5,9 @@ import 'package:lub/features/tracks/data/models/update_track_request.dart';
 import 'package:lub/features/tracks/domain/entities/track.dart';
 
 class TrackService {
-  final TrackRepository _repository = TrackRepository();
+  TrackService(this._repository);
+
+  final TrackRepository _repository;
 
   Future<Track> getTrack(int trackID) async {
     TrackResponse model = await _repository.getTrack(trackID);

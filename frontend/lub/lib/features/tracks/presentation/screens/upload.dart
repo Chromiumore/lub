@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:lub/core/injection_service.dart';
 import 'package:lub/features/tracks/presentation/widgets/attach_file_button.dart';
 import 'package:lub/features/tracks/presentation/widgets/track_title_form_field.dart';
 import 'package:path/path.dart' as p;
@@ -25,7 +26,7 @@ class _UploadTrackScreenState extends State<UploadTrackScreen> {
   File? _coverImageFile;
   bool _isLoading = false;
 
-  final TrackService _trackService = TrackService();
+  final TrackService _trackService = InjectionService.locator<TrackService>();
 
   Future<void> _pickAudioFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(

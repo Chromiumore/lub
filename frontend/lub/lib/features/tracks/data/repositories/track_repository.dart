@@ -7,7 +7,9 @@ import 'package:lub/features/tracks/data/models/track_response.dart';
 import 'package:lub/features/tracks/data/models/update_track_request.dart';
 
 class TrackRepository {
-  final Dio _dio = Dio(BaseOptions(baseUrl: DioConfig.baseUrl));
+  TrackRepository(this._dio);
+
+  final Dio _dio;
 
   Future<TrackResponse> getTrack(int trackID) async {
     var response = await _dio.get('/music/$trackID');

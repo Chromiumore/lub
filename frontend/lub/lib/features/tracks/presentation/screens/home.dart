@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lub/core/injection_service.dart';
 import 'package:lub/features/tracks/data/repositories/track_repository.dart';
 
 import 'package:lub/features/tracks/application/services/track_service.dart';
@@ -19,8 +20,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Track>> _tracks;
-  final TrackService _trackService = TrackService();
-  final TrackRepository _trackRepository = TrackRepository();
+  final TrackService _trackService = InjectionService.locator<TrackService>();
+  final TrackRepository _trackRepository =
+      InjectionService.locator<TrackRepository>();
 
   @override
   void initState() {
